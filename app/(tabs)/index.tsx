@@ -1,12 +1,19 @@
-import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
-import * as MediaLibrary from 'expo-media-library';
-import { useRef, useState, useEffect } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View, Dimensions } from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import { useEffect, useRef } from "react";
+import {
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function App() {
-  const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
-  const [mediaLibraryPermission, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+  const [mediaLibraryPermission, requestMediaLibraryPermission] =
+    MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
@@ -30,10 +37,6 @@ export default function App() {
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing((current) => (current === "back" ? "front" : "back"));
-  }
-
   async function takePicture() {
     if (cameraRef.current) {
       try {
@@ -51,17 +54,14 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
-        <CameraView 
-          style={styles.camera} 
-          facing={facing} 
+        <CameraView
+          style={styles.camera}
+          facing="back"
           ref={cameraRef}
-          zoom={0.7}
+          zoom={0.1}
         />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-          <Text style={styles.text}>カメラ切り替え</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
           <Text style={styles.text}>撮影</Text>
         </TouchableOpacity>
@@ -70,7 +70,7 @@ export default function App() {
   );
 }
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 const cameraHeight = (width * 16) / 9;
 
 const styles = StyleSheet.create({
@@ -101,22 +101,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "transparent",
     paddingHorizontal: 20,
-  },
-  button: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "#000",
-    padding: 15,
-    borderRadius: 8,
-    marginHorizontal: 5,
+    justifyContent: "center",
   },
   captureButton: {
-    flex: 2,
     alignItems: "center",
     backgroundColor: "#ff0000",
     padding: 20,
     borderRadius: 50,
-    marginHorizontal: 5,
+    width: 80,
+    height: 80,
   },
   text: {
     fontSize: 16,
