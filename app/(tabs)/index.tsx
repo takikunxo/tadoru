@@ -60,6 +60,12 @@ export default function App() {
           ref={cameraRef}
           zoom={0.1}
         />
+        <View style={styles.gridOverlay}>
+          <View style={[styles.gridLine, { left: '33.33%' }]} />
+          <View style={[styles.gridLine, { left: '66.66%' }]} />
+          <View style={[styles.gridLine, styles.gridLineHorizontal, { top: '33.33%' }]} />
+          <View style={[styles.gridLine, styles.gridLineHorizontal, { top: '66.66%' }]} />
+        </View>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
@@ -92,6 +98,24 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+  },
+  gridOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: "none",
+  },
+  gridLine: {
+    position: "absolute",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 1,
+    height: "100%",
+  },
+  gridLineHorizontal: {
+    width: "100%",
+    height: 1,
   },
   buttonContainer: {
     position: "absolute",
