@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.tacitusxo.tadoru",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "カメラを使用して写真を撮影するために使用します。"
       }
     },
     "android": {
