@@ -10,6 +10,9 @@ export default function Page() {
     <View>
       <SignedIn>
         <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
+        <Link href="../(tabs)" asChild>
+          <Text>Tab画面へ</Text>
+        </Link>
         <SignOutButton />
       </SignedIn>
       <SignedOut>
