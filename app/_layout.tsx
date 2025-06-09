@@ -1,5 +1,3 @@
-import { ClerkProvider } from "@clerk/clerk-expo";
-import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
@@ -20,13 +18,9 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider tokenCache={tokenCache}>
-      <ThemeProvider
-        value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}
-      >
-        <Slot />
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </ClerkProvider>
+    <ThemeProvider value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}>
+      <Slot />
+      <StatusBar style="auto" />
+    </ThemeProvider>
   );
 }
