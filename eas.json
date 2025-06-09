@@ -14,7 +14,7 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWxhZHliaXJkLTMzLmNsZXJrLmFjY291bnRzLmRldiQ"
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_ZGl2aW5lLWxhZHliaXJkLTMzLmNsZXJrLmFjY291bnRzLmRldiQ"
       }
     }
   },
