@@ -17,22 +17,49 @@ export default function App() {
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
-    if (!permission?.granted) {
-      requestPermission();
-    }
-    if (!mediaLibraryPermission?.granted) {
-      requestMediaLibraryPermission();
-    }
-  }, [permission, mediaLibraryPermission]);
+    const setupPermissions = async () => {
+      try {
+        // カメラのパーミッションを先に確認
+        if (!permission?.granted) {
+          const cameraResult = await requestPermission();
+          if (!cameraResult.granted) {
+            return; // カメラのパーミッションが拒否された場合は終了
+          }
+        }
+
+        // カメラのパーミッションが許可された後にメディアライブラリのパーミッションを確認
+        if (!mediaLibraryPermission?.granted) {
+          await requestMediaLibraryPermission();
+        }
+      } catch (error) {
+        console.error("Permission setup failed:", error);
+        Alert.alert("エラー", "カメラの設定に失敗しました");
+      }
+    };
+
+    setupPermissions();
+  }, []); // 依存配列を空にして初回のみ実行
 
   if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted || !mediaLibraryPermission?.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>許可を確認中...</Text>
+        <Text style={styles.message}>カメラの初期化中...</Text>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>カメラの使用許可が必要です</Text>
+      </View>
+    );
+  }
+
+  if (!mediaLibraryPermission?.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>写真の保存に必要な許可が必要です</Text>
       </View>
     );
   }
@@ -58,13 +85,25 @@ export default function App() {
           style={styles.camera}
           facing="back"
           ref={cameraRef}
-          zoom={0.1}
+          zoom={0}
         />
         <View style={styles.gridOverlay}>
-          <View style={[styles.gridLine, { left: '33.33%' }]} />
-          <View style={[styles.gridLine, { left: '66.66%' }]} />
-          <View style={[styles.gridLine, styles.gridLineHorizontal, { top: '33.33%' }]} />
-          <View style={[styles.gridLine, styles.gridLineHorizontal, { top: '66.66%' }]} />
+          <View style={[styles.gridLine, { left: "33.33%" }]} />
+          <View style={[styles.gridLine, { left: "66.66%" }]} />
+          <View
+            style={[
+              styles.gridLine,
+              styles.gridLineHorizontal,
+              { top: "33.33%" },
+            ]}
+          />
+          <View
+            style={[
+              styles.gridLine,
+              styles.gridLineHorizontal,
+              { top: "66.66%" },
+            ]}
+          />
         </View>
       </View>
       <View style={styles.buttonContainer}>
@@ -88,6 +127,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingBottom: 10,
     fontSize: 16,
+    color: "#fff",
   },
   cameraContainer: {
     width: width,
