@@ -1,6 +1,7 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
-import { useEffect, useRef } from "react";
+import * as Speech from "expo-speech";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -15,6 +16,8 @@ export default function App() {
   const [mediaLibraryPermission, requestMediaLibraryPermission] =
     MediaLibrary.usePermissions();
   const cameraRef = useRef<CameraView>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isTimerActive, setIsTimerActive] = useState(false);
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -82,6 +85,30 @@ export default function App() {
     }
   }
 
+  function startCountdown() {
+    if (isTimerActive) return;
+    
+    setIsTimerActive(true);
+    setCountdown(3);
+    Speech.speak("3", { language: "ja" });
+    
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          setIsTimerActive(false);
+          setCountdown(null);
+          Speech.speak("撮影します", { language: "ja" });
+          setTimeout(() => takePicture(), 200);
+          return null;
+        }
+        const newCount = prev - 1;
+        Speech.speak(newCount.toString(), { language: "ja" });
+        return newCount;
+      });
+    }, 1000);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
@@ -134,8 +161,16 @@ export default function App() {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-          <View style={styles.captureButtonInner} />
+        <TouchableOpacity 
+          style={[styles.captureButton, isTimerActive && styles.captureButtonActive]} 
+          onPress={startCountdown}
+          disabled={isTimerActive}
+        >
+          <View style={styles.captureButtonInner}>
+            {countdown && (
+              <Text style={styles.countdownText}>{countdown}</Text>
+            )}
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -214,6 +249,16 @@ const styles = StyleSheet.create({
     height: 65,
     borderWidth: 2,
     borderColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  captureButtonActive: {
+    backgroundColor: "#ff6b6b",
+  },
+  countdownText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#000",
   },
   text: {
     fontSize: 16,
