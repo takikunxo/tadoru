@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as Speech from "expo-speech";
@@ -138,7 +139,7 @@ export default function App() {
           <View style={styles.instructionContainer}>
             <View style={styles.instructionBubble}>
               <Text style={styles.cameraInstructionText}>
-                頭がここにくるように立ってね！
+                頭のてっぺんがこのラインにくるように🙎
               </Text>
               <View style={styles.bubbleTail} />
             </View>
@@ -170,7 +171,11 @@ export default function App() {
           disabled={isTimerActive}
         >
           <View style={styles.captureButtonInner}>
-            {countdown && <Text style={styles.countdownText}>{countdown}</Text>}
+            {countdown ? (
+              <Text style={styles.countdownText}>{countdown}</Text>
+            ) : (
+              <Ionicons name="camera" size={32} color="#000" />
+            )}
           </View>
         </TouchableOpacity>
       </View>
