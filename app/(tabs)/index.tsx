@@ -110,10 +110,25 @@ export default function App() {
           />
           <View style={styles.instructionContainer}>
             <View style={styles.instructionBubble}>
-              <Text style={styles.instructionText}>
-                頭をこのラインに合わせて
+              <Text style={styles.cameraInstructionText}>
+                頭をこのラインに合わせよう
               </Text>
               <View style={styles.bubbleTail} />
+            </View>
+          </View>
+          <View style={styles.cameraInstructionContainer}>
+            <View style={styles.cameraInstructionBubble}>
+              <Text style={styles.cameraInstructionText}>
+                カメラは被写体と平行に
+              </Text>
+            </View>
+          </View>
+          <View style={styles.footInstructionContainer}>
+            <View style={styles.footInstructionBubble}>
+              <Text style={styles.cameraInstructionText}>
+                足先は一番下のラインと合わせる
+              </Text>
+              <View style={styles.footBubbleTail} />
             </View>
           </View>
         </View>
@@ -248,5 +263,59 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
+  },
+  cameraInstructionContainer: {
+    position: "absolute",
+    top: "60%",
+    right: "10%",
+    alignItems: "center",
+  },
+  cameraInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  cameraInstructionText: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  footInstructionContainer: {
+    position: "absolute",
+    bottom: 150,
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  footInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    position: "relative",
+  },
+  footBubbleTail: {
+    position: "absolute",
+    bottom: -8,
+    alignSelf: "center",
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderTopWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(0, 0, 0, 0.6)",
   },
 });
