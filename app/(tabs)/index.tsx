@@ -108,6 +108,13 @@ export default function App() {
               { top: "66.66%" },
             ]}
           />
+          <View style={styles.instructionContainer}>
+            <View style={styles.instructionBubble}>
+              <Text style={styles.instructionText}>✨ 頭をここに合わせて</Text>
+              <View style={styles.bubbleTail} />
+            </View>
+            <Text style={styles.arrow}>👇</Text>
+          </View>
         </View>
       </View>
       <View style={styles.buttonContainer}>
@@ -183,5 +190,49 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "white",
+  },
+  instructionContainer: {
+    position: "absolute",
+    top: "15%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  instructionBubble: {
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    position: "relative",
+  },
+  instructionText: {
+    color: "#333",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  bubbleTail: {
+    position: "absolute",
+    bottom: -8,
+    alignSelf: "center",
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderTopWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(255, 255, 255, 0.95)",
+  },
+  arrow: {
+    fontSize: 28,
+    marginTop: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
 });
