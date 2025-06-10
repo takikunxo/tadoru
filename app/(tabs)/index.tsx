@@ -29,7 +29,11 @@ export default function App() {
 
         // カメラのパーミッションが許可された後にメディアライブラリのパーミッションを確認
         if (!mediaLibraryPermission?.granted) {
-          await requestMediaLibraryPermission();
+          const mediaResult = await requestMediaLibraryPermission();
+          if (!mediaResult.granted) {
+            Alert.alert("エラー", "写真の保存に必要な許可が拒否されました");
+            return;
+          }
         }
       } catch (error) {
         console.error("Permission setup failed:", error);
