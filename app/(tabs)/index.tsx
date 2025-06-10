@@ -110,10 +110,11 @@ export default function App() {
           />
           <View style={styles.instructionContainer}>
             <View style={styles.instructionBubble}>
-              <Text style={styles.instructionText}>✨ 頭をここに合わせて</Text>
+              <Text style={styles.instructionText}>
+                頭をこのラインに合わせて
+              </Text>
               <View style={styles.bubbleTail} />
             </View>
-            <Text style={styles.arrow}>👇</Text>
           </View>
         </View>
       </View>
@@ -206,12 +207,12 @@ const styles = StyleSheet.create({
   },
   instructionContainer: {
     position: "absolute",
-    top: "15%",
+    top: "25%",
     alignSelf: "center",
     alignItems: "center",
   },
   instructionBubble: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 20,
@@ -223,8 +224,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   instructionText: {
-    color: "#333",
-    fontSize: 16,
+    color: "white",
+    fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 10,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
-    borderTopColor: "rgba(255, 255, 255, 0.95)",
+    borderTopColor: "rgba(0, 0, 0, 0.6)",
   },
   arrow: {
     fontSize: 28,
