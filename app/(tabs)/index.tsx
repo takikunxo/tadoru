@@ -87,11 +87,11 @@ export default function App() {
 
   function startCountdown() {
     if (isTimerActive) return;
-    
+
     setIsTimerActive(true);
     setCountdown(3);
     Speech.speak("3", { language: "ja" });
-    
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
@@ -138,7 +138,7 @@ export default function App() {
           <View style={styles.instructionContainer}>
             <View style={styles.instructionBubble}>
               <Text style={styles.cameraInstructionText}>
-                頭をこのラインに合わせよう
+                頭がここにくるように立ってね！
               </Text>
               <View style={styles.bubbleTail} />
             </View>
@@ -146,14 +146,14 @@ export default function App() {
           <View style={styles.cameraInstructionContainer}>
             <View style={styles.cameraInstructionBubble}>
               <Text style={styles.cameraInstructionText}>
-                カメラは被写体と平行に
+                カメラはまっすぐ、斜めにならないように✨
               </Text>
             </View>
           </View>
           <View style={styles.footInstructionContainer}>
             <View style={styles.footInstructionBubble}>
               <Text style={styles.cameraInstructionText}>
-                足先は一番下のラインと合わせる
+                つま先はこの線にピッタリ合わせよう👣
               </Text>
               <View style={styles.footBubbleTail} />
             </View>
@@ -161,15 +161,16 @@ export default function App() {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.captureButton, isTimerActive && styles.captureButtonActive]} 
+        <TouchableOpacity
+          style={[
+            styles.captureButton,
+            isTimerActive && styles.captureButtonActive,
+          ]}
           onPress={startCountdown}
           disabled={isTimerActive}
         >
           <View style={styles.captureButtonInner}>
-            {countdown && (
-              <Text style={styles.countdownText}>{countdown}</Text>
-            )}
+            {countdown && <Text style={styles.countdownText}>{countdown}</Text>}
           </View>
         </TouchableOpacity>
       </View>
