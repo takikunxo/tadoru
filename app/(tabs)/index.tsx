@@ -91,7 +91,7 @@ export default function App() {
 
     setIsTimerActive(true);
     setCountdown(3);
-    Speech.speak("3", { language: "ja" });
+    Speech.speak("3", { language: "ja", volume: 1.0 });
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -99,12 +99,12 @@ export default function App() {
           clearInterval(timer);
           setIsTimerActive(false);
           setCountdown(null);
-          Speech.speak("撮影します", { language: "ja" });
+          Speech.speak("撮影します", { language: "ja", volume: 1.0 });
           setTimeout(() => takePicture(), 200);
           return null;
         }
         const newCount = prev - 1;
-        Speech.speak(newCount.toString(), { language: "ja" });
+        Speech.speak(newCount.toString(), { language: "ja", volume: 1.0 });
         return newCount;
       });
     }, 1000);
