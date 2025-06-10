@@ -119,7 +119,7 @@ export default function App() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-          <Text style={styles.text}>撮影</Text>
+          <View style={styles.captureButtonInner} />
         </TouchableOpacity>
       </View>
     </View>
@@ -180,11 +180,24 @@ const styles = StyleSheet.create({
   },
   captureButton: {
     alignItems: "center",
-    backgroundColor: "#ff0000",
-    padding: 20,
-    borderRadius: 50,
-    width: 80,
-    height: 80,
+    justifyContent: "center",
+    backgroundColor: "white",
+    borderRadius: 36.5,
+    width: 73,
+    height: 73,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  captureButtonInner: {
+    backgroundColor: "white",
+    borderRadius: 32.5,
+    width: 65,
+    height: 65,
+    borderWidth: 2,
+    borderColor: "#000",
   },
   text: {
     fontSize: 16,
