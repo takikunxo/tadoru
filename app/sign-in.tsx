@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ImageBackground } from 'react-native';
 import { useSignIn, useAuth, useOAuth } from '@clerk/clerk-expo';
 import * as WebBrowser from 'expo-web-browser';
 import { useRouter } from 'expo-router';
@@ -31,25 +31,34 @@ export default function SignInScreen() {
   }, [startOAuthFlow, router]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Tadoru へようこそ</Text>
-        <Text style={styles.subtitle}>
-          ポーズドローイングを始めるには、まずサインインしてください
-        </Text>
-        
-        <Pressable style={styles.button} onPress={onSignInPress}>
-          <Text style={styles.buttonText}>Googleでサインイン</Text>
-        </Pressable>
+    <ImageBackground 
+      source={require('@/assets/images/background.jpg')} 
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Tadoru へようこそ</Text>
+          <Text style={styles.subtitle}>
+            ポーズドローイングを始めるには、まずサインインしてください
+          </Text>
+          
+          <Pressable style={styles.button} onPress={onSignInPress}>
+            <Text style={styles.buttonText}>Googleでサインイン</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   content: {
     flex: 1,
@@ -62,14 +71,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
-    color: '#333',
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 40,
-    color: '#666',
+    color: '#fff',
     lineHeight: 24,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   button: {
     backgroundColor: '#4285F4',
@@ -77,6 +92,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 8,
     minWidth: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   buttonText: {
     color: '#fff',
