@@ -1,19 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, ImageBackground } from 'react-native';
-import { useSignIn, useAuth, useOAuth } from '@clerk/clerk-expo';
-import * as WebBrowser from 'expo-web-browser';
-import { useRouter } from 'expo-router';
+import { useAuth, useOAuth } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import React from "react";
+import {
+  ImageBackground,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
-  const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
+  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
   const router = useRouter();
 
   React.useEffect(() => {
     if (isSignedIn) {
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
   }, [isSignedIn]);
 
@@ -23,16 +29,16 @@ export default function SignInScreen() {
 
       if (createdSessionId) {
         setActive!({ session: createdSessionId });
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       }
     } catch (err: any) {
-      console.log('OAuth error', err);
+      console.log("OAuth error", err);
     }
   }, [startOAuthFlow, router]);
 
   return (
-    <ImageBackground 
-      source={require('@/assets/images/background.jpg')} 
+    <ImageBackground
+      source={require("@/assets/images/background.jpg")}
       style={styles.container}
       resizeMode="cover"
     >
@@ -40,9 +46,9 @@ export default function SignInScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Tadoru へようこそ</Text>
           <Text style={styles.subtitle}>
-            ポーズドローイングを始めるには、まずサインインしてください
+            アプリを始めるには、まずサインインしてください
           </Text>
-          
+
           <Pressable style={styles.button} onPress={onSignInPress}>
             <Text style={styles.buttonText}>Googleでサインイン</Text>
           </Pressable>
@@ -58,50 +64,50 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    textAlign: 'center',
-    color: '#fff',
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textAlign: "center",
+    color: "#fff",
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 40,
-    color: '#fff',
+    color: "#fff",
     lineHeight: 24,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   button: {
-    backgroundColor: '#4285F4',
+    backgroundColor: "#4285F4",
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 8,
     minWidth: 200,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
