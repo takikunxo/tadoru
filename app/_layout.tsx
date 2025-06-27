@@ -3,8 +3,16 @@ import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import Constants from "expo-constants";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+
+const publishableKey = Constants.expoConfig?.extra?.clerkPublishableKey;
+
+if (!publishableKey) {
+  throw new Error("Missing Publishable Key. Please set clerkPublishableKey in app.json extra field");
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -18,9 +26,13 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}>
-      <Slot />
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <ClerkProvider publishableKey={publishableKey}>
+      <ClerkLoaded>
+        <ThemeProvider value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}>
+          <Slot />
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
