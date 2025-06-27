@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import Constants from "expo-constants";
+import * as SecureStore from "expo-secure-store";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -13,6 +14,23 @@ const publishableKey = Constants.expoConfig?.extra?.clerkPublishableKey;
 if (!publishableKey) {
   throw new Error("Missing Publishable Key. Please set clerkPublishableKey in app.json extra field");
 }
+
+const tokenCache = {
+  async getToken(key: string) {
+    try {
+      return SecureStore.getItemAsync(key);
+    } catch (err) {
+      return null;
+    }
+  },
+  async saveToken(key: string, value: string) {
+    try {
+      return SecureStore.setItemAsync(key, value);
+    } catch (err) {
+      return;
+    }
+  },
+};
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -26,7 +44,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey}>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>
         <ThemeProvider value={colorScheme === "dark" ? DefaultTheme : DefaultTheme}>
           <Slot />
