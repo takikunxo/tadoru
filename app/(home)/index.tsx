@@ -1,7 +1,7 @@
-import React from "react";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import React from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Page() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -15,7 +15,7 @@ export default function Page() {
         router.replace("/sign-in");
       }
     }
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, router]);
 
   return (
     <View style={styles.container}>
@@ -27,8 +27,8 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
