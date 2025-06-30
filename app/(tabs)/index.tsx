@@ -28,6 +28,7 @@ export default function App() {
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);
   const [shootingMode, setShootingMode] = useState<"body" | "face">("body");
+  const [timerDuration, setTimerDuration] = useState(0);
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -72,12 +73,16 @@ export default function App() {
     try {
       const voice = await AsyncStorage.getItem("voiceEnabled");
       const annotations = await AsyncStorage.getItem("annotationsEnabled");
+      const timer = await AsyncStorage.getItem("timerDuration");
 
       if (voice !== null) {
         setVoiceEnabled(JSON.parse(voice));
       }
       if (annotations !== null) {
         setAnnotationsEnabled(JSON.parse(annotations));
+      }
+      if (timer !== null) {
+        setTimerDuration(JSON.parse(timer));
       }
     } catch (error) {
       console.error(error);
@@ -152,10 +157,16 @@ export default function App() {
   function startCountdown() {
     if (isTimerActive) return;
 
+    if (timerDuration === 0) {
+      // タイマーなしの場合は即座に撮影
+      burstMode ? takeBurstPhotos() : takePicture();
+      return;
+    }
+
     setIsTimerActive(true);
-    setCountdown(3);
+    setCountdown(timerDuration);
     if (voiceEnabled) {
-      Speech.speak("3", { language: "ja", volume: 1.0 });
+      Speech.speak(timerDuration.toString(), { language: "ja", volume: 1.0 });
     }
 
     const timer = setInterval(() => {

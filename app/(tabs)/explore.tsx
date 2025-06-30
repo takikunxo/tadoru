@@ -9,6 +9,7 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
+  Text,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
@@ -21,6 +22,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(0);
 
   useEffect(() => {
     loadSettings();
@@ -30,12 +32,16 @@ export default function SettingsScreen() {
     try {
       const voice = await AsyncStorage.getItem("voiceEnabled");
       const annotations = await AsyncStorage.getItem("annotationsEnabled");
+      const timer = await AsyncStorage.getItem("timerDuration");
 
       if (voice !== null) {
         setVoiceEnabled(JSON.parse(voice));
       }
       if (annotations !== null) {
         setAnnotationsEnabled(JSON.parse(annotations));
+      }
+      if (timer !== null) {
+        setTimerDuration(JSON.parse(timer));
       }
     } catch (error) {
       console.error(error);
@@ -55,6 +61,15 @@ export default function SettingsScreen() {
     try {
       await AsyncStorage.setItem("annotationsEnabled", JSON.stringify(value));
       setAnnotationsEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveTimerSetting = async (value: number) => {
+    try {
+      await AsyncStorage.setItem("timerDuration", JSON.stringify(value));
+      setTimerDuration(value);
     } catch (error) {
       console.error(error);
     }
@@ -139,6 +154,45 @@ export default function SettingsScreen() {
                 thumbColor={"#fff"}
                 ios_backgroundColor="#E5E5EA"
               />
+            </ThemedView>
+
+            <ThemedView style={styles.divider} />
+
+            <ThemedView style={styles.settingRow}>
+              <ThemedView style={styles.settingInfo}>
+                <ThemedView style={styles.settingIconContainer}>
+                  <IconSymbol name="timer" size={20} color="#007AFF" />
+                </ThemedView>
+                <ThemedView style={styles.settingDetails}>
+                  <ThemedText style={styles.settingLabel}>
+                    タイマー時間
+                  </ThemedText>
+                  <ThemedText style={styles.settingHint}>
+                    撮影までのカウントダウン時間
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+              <ThemedView style={styles.timerPicker}>
+                {[0, 1, 2, 3, 5].map((seconds) => (
+                  <Pressable
+                    key={seconds}
+                    style={[
+                      styles.timerOption,
+                      timerDuration === seconds && styles.timerOptionActive,
+                    ]}
+                    onPress={() => saveTimerSetting(seconds)}
+                  >
+                    <Text
+                      style={[
+                        styles.timerOptionText,
+                        timerDuration === seconds && styles.timerOptionTextActive,
+                      ]}
+                    >
+                      {seconds === 0 ? 'なし' : `${seconds}秒`}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ThemedView>
             </ThemedView>
           </ThemedView>
 
@@ -318,5 +372,30 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "500",
     marginLeft: 12,
+  },
+  timerPicker: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  timerOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: "#F2F2F7",
+    minWidth: 50,
+    alignItems: "center",
+  },
+  timerOptionActive: {
+    backgroundColor: "#007AFF",
+  },
+  timerOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#000",
+    opacity: 0.7,
+  },
+  timerOptionTextActive: {
+    color: "#fff",
+    opacity: 1,
   },
 });
