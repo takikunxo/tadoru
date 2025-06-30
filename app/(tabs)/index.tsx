@@ -49,7 +49,7 @@ export default function App() {
           }
         }
       } catch (error) {
-        console.error("Permission setup failed:", error);
+        console.error(error);
         Alert.alert("エラー", "カメラの設定に失敗しました");
       }
     };
