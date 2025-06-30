@@ -111,14 +111,53 @@ export default function SettingsScreen() {
             <ThemedView style={styles.settingRow}>
               <ThemedView style={styles.settingInfo}>
                 <ThemedView style={styles.settingIconContainer}>
+                  <IconSymbol name="timer" size={20} color="#007AFF" />
+                </ThemedView>
+                <ThemedView style={styles.settingDetails}>
+                  <ThemedText style={styles.settingLabel}>
+                    タイマー時間
+                  </ThemedText>
+                  <ThemedText style={styles.settingHint}>
+                    撮影までのカウントダウン時間
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+              <ThemedView style={styles.timerPicker}>
+                {[0, 1, 2, 3, 5].map((seconds) => (
+                  <Pressable
+                    key={seconds}
+                    style={[
+                      styles.timerOption,
+                      timerDuration === seconds && styles.timerOptionActive,
+                    ]}
+                    onPress={() => saveTimerSetting(seconds)}
+                  >
+                    <Text
+                      style={[
+                        styles.timerOptionText,
+                        timerDuration === seconds && styles.timerOptionTextActive,
+                      ]}
+                    >
+                      {seconds === 0 ? 'なし' : `${seconds}秒`}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView style={styles.divider} />
+
+            <ThemedView style={styles.settingRow}>
+              <ThemedView style={styles.settingInfo}>
+                <ThemedView style={styles.settingIconContainer}>
                   <IconSymbol name="speaker.wave.2" size={20} color="#34C759" />
                 </ThemedView>
                 <ThemedView style={styles.settingDetails}>
                   <ThemedText style={styles.settingLabel}>
-                    音声ガイド
+                    音声カウントダウン
                   </ThemedText>
                   <ThemedText style={styles.settingHint}>
-                    カウントダウンと撮影案内
+                    タイマー時の数字読み上げ
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
@@ -154,45 +193,6 @@ export default function SettingsScreen() {
                 thumbColor={"#fff"}
                 ios_backgroundColor="#E5E5EA"
               />
-            </ThemedView>
-
-            <ThemedView style={styles.divider} />
-
-            <ThemedView style={styles.settingRow}>
-              <ThemedView style={styles.settingInfo}>
-                <ThemedView style={styles.settingIconContainer}>
-                  <IconSymbol name="timer" size={20} color="#007AFF" />
-                </ThemedView>
-                <ThemedView style={styles.settingDetails}>
-                  <ThemedText style={styles.settingLabel}>
-                    タイマー時間
-                  </ThemedText>
-                  <ThemedText style={styles.settingHint}>
-                    撮影までのカウントダウン時間
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-              <ThemedView style={styles.timerPicker}>
-                {[0, 1, 2, 3, 5].map((seconds) => (
-                  <Pressable
-                    key={seconds}
-                    style={[
-                      styles.timerOption,
-                      timerDuration === seconds && styles.timerOptionActive,
-                    ]}
-                    onPress={() => saveTimerSetting(seconds)}
-                  >
-                    <Text
-                      style={[
-                        styles.timerOptionText,
-                        timerDuration === seconds && styles.timerOptionTextActive,
-                      ]}
-                    >
-                      {seconds === 0 ? 'なし' : `${seconds}秒`}
-                    </Text>
-                  </Pressable>
-                ))}
-              </ThemedView>
             </ThemedView>
           </ThemedView>
 
