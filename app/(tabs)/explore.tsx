@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, StyleSheet, Pressable, Alert, Switch } from 'react-native';
+import { Platform, StyleSheet, Pressable, Alert, Switch, ScrollView, SafeAreaView } from 'react-native';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -81,122 +80,209 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="gear"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">設定</ThemedText>
-      </ThemedView>
-      
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle">カメラ設定</ThemedText>
+    <ThemedView style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">設定</ThemedText>
+          <ThemedText style={styles.subtitle}>アプリの動作をカスタマイズ</ThemedText>
+        </ThemedView>
+
+      <ThemedView style={styles.settingsCard}>
+        <ThemedView style={styles.cardHeader}>
+          <IconSymbol name="camera" size={24} color="#007AFF" />
+          <ThemedText style={styles.cardTitle}>カメラ機能</ThemedText>
+        </ThemedView>
         
-        <ThemedView style={styles.settingItem}>
-          <ThemedView style={styles.settingText}>
-            <ThemedText style={styles.settingTitle}>音声ガイド</ThemedText>
-            <ThemedText style={styles.settingDescription}>カウントダウンと撮影案内の音声</ThemedText>
+        <ThemedView style={styles.settingRow}>
+          <ThemedView style={styles.settingInfo}>
+            <ThemedView style={styles.settingIconContainer}>
+              <IconSymbol name="speaker.wave.2" size={20} color="#34C759" />
+            </ThemedView>
+            <ThemedView style={styles.settingDetails}>
+              <ThemedText style={styles.settingLabel}>音声ガイド</ThemedText>
+              <ThemedText style={styles.settingHint}>カウントダウンと撮影案内</ThemedText>
+            </ThemedView>
           </ThemedView>
           <Switch
             value={voiceEnabled}
             onValueChange={saveVoiceSetting}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={voiceEnabled ? '#f5dd4b' : '#f4f3f4'}
+            trackColor={{ false: '#E5E5EA', true: '#34C759' }}
+            thumbColor={'#fff'}
+            ios_backgroundColor="#E5E5EA"
           />
         </ThemedView>
 
-        <ThemedView style={styles.settingItem}>
-          <ThemedView style={styles.settingText}>
-            <ThemedText style={styles.settingTitle}>撮影ガイド</ThemedText>
-            <ThemedText style={styles.settingDescription}>画面上の撮影ガイドと注釈</ThemedText>
+        <ThemedView style={styles.divider} />
+
+        <ThemedView style={styles.settingRow}>
+          <ThemedView style={styles.settingInfo}>
+            <ThemedView style={styles.settingIconContainer}>
+              <IconSymbol name="grid" size={20} color="#FF9500" />
+            </ThemedView>
+            <ThemedView style={styles.settingDetails}>
+              <ThemedText style={styles.settingLabel}>撮影ガイド</ThemedText>
+              <ThemedText style={styles.settingHint}>撮影補助線と案内メッセージ</ThemedText>
+            </ThemedView>
           </ThemedView>
           <Switch
             value={annotationsEnabled}
             onValueChange={saveAnnotationsSetting}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={annotationsEnabled ? '#f5dd4b' : '#f4f3f4'}
+            trackColor={{ false: '#E5E5EA', true: '#34C759' }}
+            thumbColor={'#fff'}
+            ios_backgroundColor="#E5E5EA"
           />
         </ThemedView>
-
       </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle">アカウント情報</ThemedText>
-        <ThemedView style={styles.userInfo}>
-          <ThemedText>ユーザー名: {user?.firstName || user?.emailAddresses[0]?.emailAddress || '未設定'}</ThemedText>
-          <ThemedText>メール: {user?.emailAddresses[0]?.emailAddress || '未設定'}</ThemedText>
+      <ThemedView style={styles.settingsCard}>
+        <ThemedView style={styles.cardHeader}>
+          <IconSymbol name="person.circle" size={24} color="#007AFF" />
+          <ThemedText style={styles.cardTitle}>アカウント</ThemedText>
+        </ThemedView>
+        
+        <ThemedView style={styles.userInfoCard}>
+          <ThemedView style={styles.userInfoRow}>
+            <ThemedText style={styles.userInfoLabel}>ユーザー名</ThemedText>
+            <ThemedText style={styles.userInfoValue}>
+              {user?.firstName || user?.emailAddresses[0]?.emailAddress || '未設定'}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={styles.userInfoRow}>
+            <ThemedText style={styles.userInfoLabel}>メールアドレス</ThemedText>
+            <ThemedText style={styles.userInfoValue}>
+              {user?.emailAddresses[0]?.emailAddress || '未設定'}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
       </ThemedView>
 
-      <ThemedView style={styles.section}>
         <Pressable style={styles.logoutButton} onPress={handleSignOut}>
           <IconSymbol name="arrow.left.square" size={20} color="#fff" />
           <ThemedText style={styles.logoutText}>ログアウト</ThemedText>
         </Pressable>
-      </ThemedView>
-    </ParallaxScrollView>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 16,
   },
   titleContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: 8,
+    marginBottom: 16,
   },
-  section: {
-    marginVertical: 16,
+  subtitle: {
+    fontSize: 16,
+    opacity: 0.7,
   },
-  userInfo: {
-    marginTop: 8,
-    padding: 16,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+  settingsCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginLeft: 12,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    minHeight: 60,
+  },
+  settingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  settingIconContainer: {
+    width: 32,
+    height: 32,
     borderRadius: 8,
+    backgroundColor: '#F2F2F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  settingDetails: {
+    flex: 1,
+  },
+  settingLabel: {
+    fontSize: 17,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  settingHint: {
+    fontSize: 13,
+    opacity: 0.7,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F2F2F7',
+    marginHorizontal: 20,
+  },
+  userInfoCard: {
+    padding: 20,
+  },
+  userInfoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  userInfoLabel: {
+    fontSize: 17,
+    fontWeight: '500',
+  },
+  userInfoValue: {
+    fontSize: 17,
+    opacity: 0.7,
+    textAlign: 'right',
+    flex: 1,
+    marginLeft: 16,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#dc3545',
+    borderWidth: 1,
+    borderColor: '#FF3B30',
     padding: 16,
     borderRadius: 8,
-    gap: 8,
+    marginTop: 24,
   },
   logoutText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  settingText: {
-    flex: 1,
-    marginRight: 16,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  settingDescription: {
-    fontSize: 12,
-    opacity: 0.7,
+    color: '#FF3B30',
+    fontSize: 17,
+    fontWeight: '500',
+    marginLeft: 8,
   },
 });
