@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import * as Speech from "expo-speech";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -20,6 +22,11 @@ export default function App() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0.1);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(true);
+  const [burstMode, setBurstMode] = useState(false);
+  const [burstCount, setBurstCount] = useState(0);
+  const [isBurstActive, setIsBurstActive] = useState(false);
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -48,6 +55,28 @@ export default function App() {
 
     setupPermissions();
   }, []); // 依存配列を空にして初回のみ実行
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadSettings();
+    }, [])
+  );
+
+  const loadSettings = async () => {
+    try {
+      const voice = await AsyncStorage.getItem("voiceEnabled");
+      const annotations = await AsyncStorage.getItem("annotationsEnabled");
+
+      if (voice !== null) {
+        setVoiceEnabled(JSON.parse(voice));
+      }
+      if (annotations !== null) {
+        setAnnotationsEnabled(JSON.parse(annotations));
+      }
+    } catch (error) {
+      console.error("設定の読み込みエラー:", error);
+    }
+  };
 
   if (!permission) {
     return (
@@ -79,7 +108,9 @@ export default function App() {
         const photo = await cameraRef.current.takePictureAsync();
         if (photo) {
           await MediaLibrary.saveToLibraryAsync(photo.uri);
-          Alert.alert("写真撮影完了", "写真がアルバムに保存されました");
+          if (!burstMode) {
+            Alert.alert("写真撮影完了", "写真がアルバムに保存されました");
+          }
         }
       } catch (error) {
         Alert.alert("エラー", "写真の撮影または保存に失敗しました");
@@ -87,12 +118,48 @@ export default function App() {
     }
   }
 
+  async function takeBurstPhotos() {
+    if (!cameraRef.current || isBurstActive) return;
+
+    setIsBurstActive(true);
+    setBurstCount(0);
+
+    const totalShots = 5;
+    let successCount = 0;
+
+    for (let i = 0; i < totalShots; i++) {
+      try {
+        setBurstCount(i + 1);
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo) {
+          await MediaLibrary.saveToLibraryAsync(photo.uri);
+          successCount++;
+        }
+
+        if (i < totalShots - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      } catch (error) {
+        console.error(`連写${i + 1}枚目のエラー:`, error);
+      }
+    }
+
+    setIsBurstActive(false);
+    setBurstCount(0);
+    Alert.alert(
+      "連写完了",
+      `${successCount}枚の写真がアルバムに保存されました`
+    );
+  }
+
   function startCountdown() {
     if (isTimerActive) return;
 
     setIsTimerActive(true);
     setCountdown(3);
-    Speech.speak("3", { language: "ja", volume: 1.0 });
+    if (voiceEnabled) {
+      Speech.speak("3", { language: "ja", volume: 1.0 });
+    }
 
     const timer = setInterval(() => {
       setCountdown((prev) => {
@@ -100,12 +167,22 @@ export default function App() {
           clearInterval(timer);
           setIsTimerActive(false);
           setCountdown(null);
-          Speech.speak("撮影します", { language: "ja", volume: 1.0 });
-          setTimeout(() => takePicture(), 200);
+          if (voiceEnabled) {
+            Speech.speak(burstMode ? "連写開始" : "撮影します", {
+              language: "ja",
+              volume: 1.0,
+            });
+          }
+          setTimeout(
+            () => (burstMode ? takeBurstPhotos() : takePicture()),
+            200
+          );
           return null;
         }
         const newCount = prev - 1;
-        Speech.speak(newCount.toString(), { language: "ja", volume: 1.0 });
+        if (voiceEnabled) {
+          Speech.speak(newCount.toString(), { language: "ja", volume: 1.0 });
+        }
         return newCount;
       });
     }, 1000);
@@ -141,36 +218,40 @@ export default function App() {
               { top: "66.66%" },
             ]}
           />
-          <View style={styles.instructionContainer}>
-            <View style={styles.instructionBubble}>
-              <Text style={styles.cameraInstructionText}>
-                頭のてっぺんがこのラインにくるように🙎
-              </Text>
-              <View style={styles.bubbleTail} />
-            </View>
-          </View>
-          <View style={styles.cameraInstructionContainer}>
-            <View style={styles.cameraInstructionBubble}>
-              <Text style={styles.cameraInstructionText}>
-                カメラはまっすぐ、斜めにならないように✨
-              </Text>
-            </View>
-          </View>
-          <View style={styles.footInstructionContainer}>
-            <View style={styles.footInstructionBubble}>
-              <Text style={styles.cameraInstructionText}>
-                つま先はこの線にピッタリ合わせよう👣
-              </Text>
-              <View style={styles.footBubbleTail} />
-            </View>
-          </View>
+          {annotationsEnabled && (
+            <>
+              <View style={styles.instructionContainer}>
+                <View style={styles.instructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    頭のてっぺんがこのラインにくるように🙎
+                  </Text>
+                  <View style={styles.bubbleTail} />
+                </View>
+              </View>
+              <View style={styles.cameraInstructionContainer}>
+                <View style={styles.cameraInstructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    カメラはまっすぐ、斜めにならないように✨
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.footInstructionContainer}>
+                <View style={styles.footInstructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    つま先はこの線にピッタリ合わせよう👣
+                  </Text>
+                  <View style={styles.footBubbleTail} />
+                </View>
+              </View>
+            </>
+          )}
         </View>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.zoomButton}
           onPress={toggleZoom}
-          disabled={isTimerActive}
+          disabled={isTimerActive || isBurstActive}
         >
           <View style={styles.zoomButtonInner}>
             <Ionicons
@@ -183,20 +264,50 @@ export default function App() {
         <TouchableOpacity
           style={[
             styles.captureButton,
-            isTimerActive && styles.captureButtonActive,
+            (isTimerActive || isBurstActive) && styles.captureButtonActive,
+            burstMode && styles.captureButtonBurst,
           ]}
           onPress={startCountdown}
-          disabled={isTimerActive}
+          disabled={isTimerActive || isBurstActive}
         >
           <View style={styles.captureButtonInner}>
             {countdown ? (
               <Text style={styles.countdownText}>{countdown}</Text>
+            ) : isBurstActive ? (
+              <Text style={styles.burstCountText}>{burstCount}/5</Text>
             ) : (
-              <Ionicons name="camera" size={32} color="#000" />
+              <Ionicons
+                name={burstMode ? "albums" : "camera"}
+                size={32}
+                color="#000"
+              />
             )}
           </View>
         </TouchableOpacity>
-        <View style={styles.spacer} />
+        <TouchableOpacity
+          style={[
+            styles.burstToggleButton,
+            burstMode && styles.burstToggleButtonActive,
+          ]}
+          onPress={() => setBurstMode(!burstMode)}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <View style={styles.burstToggleButtonInner}>
+            <Ionicons
+              name="camera-outline"
+              size={20}
+              color={burstMode ? "#000" : "#fff"}
+            />
+            <Text
+              style={[
+                styles.burstToggleText,
+                burstMode && styles.burstToggleTextActive,
+              ]}
+            >
+              連写
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -410,5 +521,44 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: 50,
+  },
+  captureButtonBurst: {
+    backgroundColor: "#ff6b6b",
+  },
+  burstCountText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  burstToggleButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  burstToggleButtonActive: {
+    backgroundColor: "#fff",
+  },
+  burstToggleButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  burstToggleText: {
+    fontSize: 8,
+    fontWeight: "600",
+    color: "#fff",
+    marginTop: 2,
+  },
+  burstToggleTextActive: {
+    color: "#000",
   },
 });
