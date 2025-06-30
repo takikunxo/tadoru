@@ -306,6 +306,14 @@ export default function App() {
             >
               連写
             </Text>
+            <Text
+              style={[
+                styles.burstToggleText,
+                burstMode && styles.burstToggleTextActive,
+              ]}
+            >
+              モード
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
