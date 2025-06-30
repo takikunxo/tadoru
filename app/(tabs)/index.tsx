@@ -661,10 +661,10 @@ const styles = StyleSheet.create({
     top: "33.33%",
     width: "33.34%",
     height: "33.34%",
-    borderWidth: 3,
-    borderColor: "#ff6b6b",
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.8)",
     borderRadius: 10,
-    backgroundColor: "rgba(255, 107, 107, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
   },
   faceInstructionContainer: {
     position: "absolute",
