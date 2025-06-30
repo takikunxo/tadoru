@@ -22,8 +22,8 @@ export default function App() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(0.1);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [annotationsEnabled, setAnnotationsEnabled] = useState(true);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
   const [burstMode, setBurstMode] = useState(false);
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);

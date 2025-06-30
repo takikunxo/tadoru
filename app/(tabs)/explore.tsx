@@ -13,8 +13,8 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
   const router = useRouter();
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [annotationsEnabled, setAnnotationsEnabled] = useState(true);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
 
   useEffect(() => {
     loadSettings();
