@@ -266,7 +266,7 @@ export default function App() {
                   <View style={styles.instructionContainer}>
                     <View style={styles.instructionBubble}>
                       <Text style={styles.cameraInstructionText}>
-                        頭のてっぺんがこのラインにくるように🙎
+                        頭のてっぺんをこの辺りに🙎
                       </Text>
                       <View style={styles.bubbleTail} />
                     </View>
@@ -281,7 +281,7 @@ export default function App() {
                   <View style={styles.footInstructionContainer}>
                     <View style={styles.footInstructionBubble}>
                       <Text style={styles.cameraInstructionText}>
-                        つま先はこの線にピッタリ合わせよう👣
+                        つま先は一番下のラインに👣
                       </Text>
                       <View style={styles.footBubbleTail} />
                     </View>
@@ -292,16 +292,9 @@ export default function App() {
                   <View style={styles.faceInstructionContainer}>
                     <View style={styles.faceInstructionBubble}>
                       <Text style={styles.cameraInstructionText}>
-                        顔が中央の枠に収まるように👤
+                        広角で顔が中央の枠に👤
                       </Text>
                       <View style={styles.faceBubbleTail} />
-                    </View>
-                  </View>
-                  <View style={styles.faceCameraInstructionContainer}>
-                    <View style={styles.faceCameraInstructionBubble}>
-                      <Text style={styles.cameraInstructionText}>
-                        目線をカメラに向けて📸
-                      </Text>
                     </View>
                   </View>
                 </>
@@ -474,7 +467,7 @@ const styles = StyleSheet.create({
   },
   instructionContainer: {
     position: "absolute",
-    top: "25%",
+    top: "35%",
     alignSelf: "center",
     alignItems: "center",
   },
@@ -520,8 +513,8 @@ const styles = StyleSheet.create({
   },
   cameraInstructionContainer: {
     position: "absolute",
-    top: "60%",
-    right: "10%",
+    top: "10%",
+    left: "10%",
     alignItems: "center",
   },
   cameraInstructionBubble: {
@@ -545,7 +538,8 @@ const styles = StyleSheet.create({
   },
   footInstructionContainer: {
     position: "absolute",
-    bottom: 150,
+    bottom: 120,
+    left: "10%",
     alignSelf: "center",
     alignItems: "center",
   },
@@ -704,24 +698,5 @@ const styles = StyleSheet.create({
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
     borderTopColor: "rgba(255, 255, 255, 0.95)",
-  },
-  faceCameraInstructionContainer: {
-    position: "absolute",
-    top: "75%",
-    right: "10%",
-    alignItems: "center",
-  },
-  faceCameraInstructionBubble: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(88, 86, 214, 0.4)",
-    shadowColor: "#5856D6",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
 });

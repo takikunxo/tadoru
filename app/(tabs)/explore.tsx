@@ -135,10 +135,11 @@ export default function SettingsScreen() {
                     <Text
                       style={[
                         styles.timerOptionText,
-                        timerDuration === seconds && styles.timerOptionTextActive,
+                        timerDuration === seconds &&
+                          styles.timerOptionTextActive,
                       ]}
                     >
-                      {seconds === 0 ? 'なし' : `${seconds}秒`}
+                      {seconds === 0 ? "なし" : `${seconds}秒`}
                     </Text>
                   </Pressable>
                 ))}
@@ -182,7 +183,7 @@ export default function SettingsScreen() {
                     撮影ガイド
                   </ThemedText>
                   <ThemedText style={styles.settingHint}>
-                    撮影補助線と案内メッセージ
+                    案内メッセージ
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
