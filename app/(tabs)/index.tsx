@@ -19,6 +19,7 @@ export default function App() {
   const cameraRef = useRef<CameraView>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(0.1);
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -110,6 +111,10 @@ export default function App() {
     }, 1000);
   }
 
+  function toggleZoom() {
+    setZoomLevel((prev) => (prev === 0.1 ? 0 : 0.1));
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.cameraContainer}>
@@ -117,7 +122,7 @@ export default function App() {
           style={styles.camera}
           facing="back"
           ref={cameraRef}
-          zoom={0.1}
+          zoom={zoomLevel}
         />
         <View style={styles.gridOverlay}>
           <View style={[styles.gridLine, { left: "33.33%" }]} />
@@ -163,6 +168,19 @@ export default function App() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
+          style={styles.zoomButton}
+          onPress={toggleZoom}
+          disabled={isTimerActive}
+        >
+          <View style={styles.zoomButtonInner}>
+            <Ionicons
+              name={zoomLevel === 0 ? "contract-outline" : "expand-outline"}
+              size={24}
+              color="#fff"
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[
             styles.captureButton,
             isTimerActive && styles.captureButtonActive,
@@ -178,6 +196,7 @@ export default function App() {
             )}
           </View>
         </TouchableOpacity>
+        <View style={styles.spacer} />
       </View>
     </View>
   );
@@ -233,7 +252,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "transparent",
     paddingHorizontal: 20,
-    justifyContent: "center",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   captureButton: {
     alignItems: "center",
@@ -368,5 +388,27 @@ const styles = StyleSheet.create({
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
     borderTopColor: "rgba(0, 0, 0, 0.6)",
+  },
+  zoomButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  zoomButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  spacer: {
+    width: 50,
   },
 });
