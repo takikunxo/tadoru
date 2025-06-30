@@ -265,7 +265,6 @@ export default function App() {
           style={[
             styles.captureButton,
             (isTimerActive || isBurstActive) && styles.captureButtonActive,
-            burstMode && styles.captureButtonBurst,
           ]}
           onPress={startCountdown}
           disabled={isTimerActive || isBurstActive}
@@ -529,9 +528,6 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: 50,
-  },
-  captureButtonBurst: {
-    backgroundColor: "#ff6b6b",
   },
   burstCountText: {
     fontSize: 18,
