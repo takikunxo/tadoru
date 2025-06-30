@@ -27,7 +27,7 @@ export default function App() {
   const [burstMode, setBurstMode] = useState(false);
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);
-  const [shootingMode, setShootingMode] = useState<'body' | 'face'>('body');
+  const [shootingMode, setShootingMode] = useState<"body" | "face">("body");
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -55,7 +55,12 @@ export default function App() {
     };
 
     setupPermissions();
-  }, []); // 依存配列を空にして初回のみ実行
+  }, [
+    mediaLibraryPermission?.granted,
+    permission?.granted,
+    requestMediaLibraryPermission,
+    requestPermission,
+  ]); // 依存配列を空にして初回のみ実行
 
   useFocusEffect(
     React.useCallback(() => {
@@ -113,7 +118,7 @@ export default function App() {
             Alert.alert("写真撮影完了", "写真がアルバムに保存されました");
           }
         }
-      } catch (error) {
+      } catch {
         Alert.alert("エラー", "写真の撮影または保存に失敗しました");
       }
     }
@@ -199,30 +204,34 @@ export default function App() {
         <TouchableOpacity
           style={[
             styles.modeToggleButton,
-            shootingMode === 'body' && styles.modeToggleButtonActive,
+            shootingMode === "body" && styles.modeToggleButtonActive,
           ]}
-          onPress={() => setShootingMode('body')}
+          onPress={() => setShootingMode("body")}
           disabled={isTimerActive || isBurstActive}
         >
-          <Text style={[
-            styles.modeToggleText,
-            shootingMode === 'body' && styles.modeToggleTextActive,
-          ]}>
+          <Text
+            style={[
+              styles.modeToggleText,
+              shootingMode === "body" && styles.modeToggleTextActive,
+            ]}
+          >
             全身撮影
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.modeToggleButton,
-            shootingMode === 'face' && styles.modeToggleButtonActive,
+            shootingMode === "face" && styles.modeToggleButtonActive,
           ]}
-          onPress={() => setShootingMode('face')}
+          onPress={() => setShootingMode("face")}
           disabled={isTimerActive || isBurstActive}
         >
-          <Text style={[
-            styles.modeToggleText,
-            shootingMode === 'face' && styles.modeToggleTextActive,
-          ]}>
+          <Text
+            style={[
+              styles.modeToggleText,
+              shootingMode === "face" && styles.modeToggleTextActive,
+            ]}
+          >
             顔写真
           </Text>
         </TouchableOpacity>
@@ -251,12 +260,10 @@ export default function App() {
               { top: "66.66%" },
             ]}
           />
-          {shootingMode === 'face' && (
-            <View style={styles.faceGuideBox} />
-          )}
+          {shootingMode === "face" && <View style={styles.faceGuideBox} />}
           {annotationsEnabled && (
             <>
-              {shootingMode === 'body' ? (
+              {shootingMode === "body" ? (
                 <>
                   <View style={styles.instructionContainer}>
                     <View style={styles.instructionBubble}>
