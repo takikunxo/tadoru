@@ -117,7 +117,7 @@ export default function App() {
           style={styles.camera}
           facing="back"
           ref={cameraRef}
-          zoom={0}
+          zoom={0.1}
         />
         <View style={styles.gridOverlay}>
           <View style={[styles.gridLine, { left: "33.33%" }]} />
