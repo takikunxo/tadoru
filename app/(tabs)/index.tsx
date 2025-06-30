@@ -27,6 +27,7 @@ export default function App() {
   const [burstMode, setBurstMode] = useState(false);
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);
+  const [shootingMode, setShootingMode] = useState<'body' | 'face'>('body');
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -194,6 +195,38 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.modeToggleContainer}>
+        <TouchableOpacity
+          style={[
+            styles.modeToggleButton,
+            shootingMode === 'body' && styles.modeToggleButtonActive,
+          ]}
+          onPress={() => setShootingMode('body')}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <Text style={[
+            styles.modeToggleText,
+            shootingMode === 'body' && styles.modeToggleTextActive,
+          ]}>
+            全身撮影
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.modeToggleButton,
+            shootingMode === 'face' && styles.modeToggleButtonActive,
+          ]}
+          onPress={() => setShootingMode('face')}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <Text style={[
+            styles.modeToggleText,
+            shootingMode === 'face' && styles.modeToggleTextActive,
+          ]}>
+            顔写真
+          </Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
@@ -218,31 +251,56 @@ export default function App() {
               { top: "66.66%" },
             ]}
           />
+          {shootingMode === 'face' && (
+            <View style={styles.faceGuideBox} />
+          )}
           {annotationsEnabled && (
             <>
-              <View style={styles.instructionContainer}>
-                <View style={styles.instructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    頭のてっぺんがこのラインにくるように🙎
-                  </Text>
-                  <View style={styles.bubbleTail} />
-                </View>
-              </View>
-              <View style={styles.cameraInstructionContainer}>
-                <View style={styles.cameraInstructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    カメラはまっすぐ、斜めにならないように✨
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.footInstructionContainer}>
-                <View style={styles.footInstructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    つま先はこの線にピッタリ合わせよう👣
-                  </Text>
-                  <View style={styles.footBubbleTail} />
-                </View>
-              </View>
+              {shootingMode === 'body' ? (
+                <>
+                  <View style={styles.instructionContainer}>
+                    <View style={styles.instructionBubble}>
+                      <Text style={styles.cameraInstructionText}>
+                        頭のてっぺんがこのラインにくるように🙎
+                      </Text>
+                      <View style={styles.bubbleTail} />
+                    </View>
+                  </View>
+                  <View style={styles.cameraInstructionContainer}>
+                    <View style={styles.cameraInstructionBubble}>
+                      <Text style={styles.cameraInstructionText}>
+                        カメラはまっすぐ、斜めにならないように✨
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.footInstructionContainer}>
+                    <View style={styles.footInstructionBubble}>
+                      <Text style={styles.cameraInstructionText}>
+                        つま先はこの線にピッタリ合わせよう👣
+                      </Text>
+                      <View style={styles.footBubbleTail} />
+                    </View>
+                  </View>
+                </>
+              ) : (
+                <>
+                  <View style={styles.faceInstructionContainer}>
+                    <View style={styles.faceInstructionBubble}>
+                      <Text style={styles.cameraInstructionText}>
+                        顔が中央の枠に収まるように👤
+                      </Text>
+                      <View style={styles.faceBubbleTail} />
+                    </View>
+                  </View>
+                  <View style={styles.faceCameraInstructionContainer}>
+                    <View style={styles.faceCameraInstructionBubble}>
+                      <Text style={styles.cameraInstructionText}>
+                        目線をカメラに向けて📸
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
             </>
           )}
         </View>
@@ -564,5 +622,91 @@ const styles = StyleSheet.create({
   },
   burstToggleTextActive: {
     color: "#000",
+  },
+  modeToggleContainer: {
+    position: "absolute",
+    top: 50,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+    zIndex: 1,
+  },
+  modeToggleButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  modeToggleButtonActive: {
+    backgroundColor: "#fff",
+  },
+  modeToggleText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  modeToggleTextActive: {
+    color: "#000",
+  },
+  faceGuideBox: {
+    position: "absolute",
+    left: "33.33%",
+    top: "33.33%",
+    width: "33.34%",
+    height: "33.34%",
+    borderWidth: 3,
+    borderColor: "#ff6b6b",
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 107, 107, 0.1)",
+  },
+  faceInstructionContainer: {
+    position: "absolute",
+    top: "20%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  faceInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    position: "relative",
+  },
+  faceBubbleTail: {
+    position: "absolute",
+    bottom: -8,
+    alignSelf: "center",
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderTopWidth: 10,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(0, 0, 0, 0.6)",
+  },
+  faceCameraInstructionContainer: {
+    position: "absolute",
+    top: "75%",
+    right: "10%",
+    alignItems: "center",
+  },
+  faceCameraInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
