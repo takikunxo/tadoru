@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   instructionContainer: {
     position: "absolute",
-    top: "35%",
+    top: "30%",
     alignSelf: "center",
     alignItems: "center",
   },
