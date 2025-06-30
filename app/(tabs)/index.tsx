@@ -166,6 +166,7 @@ export default function App() {
     setIsTimerActive(true);
     setCountdown(timerDuration);
     if (voiceEnabled) {
+      Speech.stop();
       Speech.speak(timerDuration.toString(), { language: "ja", volume: 1.0 });
     }
 
@@ -175,12 +176,6 @@ export default function App() {
           clearInterval(timer);
           setIsTimerActive(false);
           setCountdown(null);
-          if (voiceEnabled) {
-            Speech.speak(burstMode ? "連写開始" : "撮影します", {
-              language: "ja",
-              volume: 1.0,
-            });
-          }
           setTimeout(
             () => (burstMode ? takeBurstPhotos() : takePicture()),
             200
@@ -189,6 +184,7 @@ export default function App() {
         }
         const newCount = prev - 1;
         if (voiceEnabled) {
+          Speech.stop();
           Speech.speak(newCount.toString(), { language: "ja", volume: 1.0 });
         }
         return newCount;
