@@ -80,7 +80,7 @@ export default function App() {
         setAnnotationsEnabled(JSON.parse(annotations));
       }
     } catch (error) {
-      console.error("設定の読み込みエラー:", error);
+      console.error(error);
     }
   };
 
@@ -114,9 +114,6 @@ export default function App() {
         const photo = await cameraRef.current.takePictureAsync();
         if (photo) {
           await MediaLibrary.saveToLibraryAsync(photo.uri);
-          if (!burstMode) {
-            Alert.alert("写真撮影完了", "写真がアルバムに保存されました");
-          }
         }
       } catch {
         Alert.alert("エラー", "写真の撮影または保存に失敗しました");
@@ -131,7 +128,6 @@ export default function App() {
     setBurstCount(0);
 
     const totalShots = 5;
-    let successCount = 0;
 
     for (let i = 0; i < totalShots; i++) {
       try {
@@ -139,23 +135,18 @@ export default function App() {
         const photo = await cameraRef.current.takePictureAsync();
         if (photo) {
           await MediaLibrary.saveToLibraryAsync(photo.uri);
-          successCount++;
         }
 
         if (i < totalShots - 1) {
           await new Promise((resolve) => setTimeout(resolve, 50));
         }
       } catch (error) {
-        console.error(`連写${i + 1}枚目のエラー:`, error);
+        console.error(error);
       }
     }
 
     setIsBurstActive(false);
     setBurstCount(0);
-    Alert.alert(
-      "連写完了",
-      `${successCount}枚の写真がアルバムに保存されました`
-    );
   }
 
   function startCountdown() {
