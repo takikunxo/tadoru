@@ -157,10 +157,15 @@ export default function SettingsScreen() {
         </ThemedView>
       </ThemedView>
 
-        <Pressable style={styles.logoutButton} onPress={handleSignOut}>
-          <IconSymbol name="arrow.left.square" size={20} color="#fff" />
-          <ThemedText style={styles.logoutText}>ログアウト</ThemedText>
-        </Pressable>
+        <ThemedView style={styles.logoutCard}>
+          <Pressable style={styles.logoutButton} onPress={handleSignOut}>
+            <ThemedView style={styles.logoutContent}>
+              <IconSymbol name="arrow.left.square" size={20} color="#FF3B30" />
+              <ThemedText style={styles.logoutText}>ログアウト</ThemedText>
+            </ThemedView>
+            <IconSymbol name="chevron.right" size={16} color="#C7C7CC" />
+          </Pressable>
+        </ThemedView>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -269,20 +274,31 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 16,
   },
+  logoutCard: {
+    borderRadius: 16,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 24,
+    justifyContent: 'space-between',
+    padding: 20,
+    minHeight: 60,
+  },
+  logoutContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   logoutText: {
     color: '#FF3B30',
     fontSize: 17,
     fontWeight: '500',
-    marginLeft: 8,
+    marginLeft: 12,
   },
 });
