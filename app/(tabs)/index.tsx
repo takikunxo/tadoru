@@ -165,15 +165,19 @@ export default function App() {
     }
   };
 
-  const onGestureEvent = Animated.event(
-    [{ nativeEvent: { translationX: settingsPanelAnimation } }],
-    { useNativeDriver: true }
-  );
+  const onGestureEvent = (event: any) => {
+    const { translationX } = event.nativeEvent;
+    // 左方向（負の値）の移動のみ許可
+    if (translationX <= 0) {
+      settingsPanelAnimation.setValue(translationX);
+    }
+  };
 
   const onHandlerStateChange = (event: any) => {
     if (event.nativeEvent.oldState === State.ACTIVE) {
       const { translationX, velocityX } = event.nativeEvent;
       
+      // 左方向（負の値）のスワイプのみで閉じる
       if (translationX < -100 || velocityX < -500) {
         Animated.timing(settingsPanelAnimation, {
           toValue: -300,
@@ -181,6 +185,7 @@ export default function App() {
           useNativeDriver: true,
         }).start(() => setShowSettingsPanel(false));
       } else {
+        // 右方向のスワイプや不十分な左スワイプは元の位置に戻す
         Animated.timing(settingsPanelAnimation, {
           toValue: 0,
           duration: 200,
