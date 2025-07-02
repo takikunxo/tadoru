@@ -12,9 +12,13 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
+import { Colors } from '@/constants/Colors';
 
 export default function App() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const [permission, requestPermission] = useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] =
     MediaLibrary.usePermissions();
@@ -99,24 +103,24 @@ export default function App() {
 
   if (!permission) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>カメラの初期化中...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>カメラの初期化中...</Text>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>カメラの使用許可が必要です</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>カメラの使用許可が必要です</Text>
       </View>
     );
   }
 
   if (!mediaLibraryPermission?.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>写真の保存に必要な許可が必要です</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>写真の保存に必要な許可が必要です</Text>
       </View>
     );
   }
@@ -205,7 +209,7 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
@@ -338,13 +342,11 @@ const cameraHeight = (width * 16) / 9;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
   },
   message: {
     textAlign: "center",
     paddingBottom: 10,
     fontSize: 16,
-    color: "#fff",
   },
   cameraContainer: {
     width: width,
