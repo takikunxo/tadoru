@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import React from "react";
 import {
+  Alert,
   ImageBackground,
   Pressable,
   StyleSheet,
@@ -26,14 +27,35 @@ export default function SignInScreen() {
 
   const onSignInPress = React.useCallback(async () => {
     try {
-      const { createdSessionId, setActive } = await startOAuthFlow();
+      console.log("Starting OAuth flow...");
+      const { createdSessionId, setActive, signIn, signUp } = await startOAuthFlow();
+
+      console.log("OAuth flow result:", { createdSessionId, signIn, signUp });
 
       if (createdSessionId) {
+        console.log("Setting active session:", createdSessionId);
         setActive!({ session: createdSessionId });
         router.replace("/(tabs)");
+      } else {
+        console.log("No session created");
+        Alert.alert("サインインエラー", "セッションの作成に失敗しました。もう一度お試しください。");
       }
     } catch (err: any) {
-      console.log("OAuth error", err);
+      console.log("OAuth error details:", err);
+      console.log("Error message:", err.message);
+      console.log("Error code:", err.code);
+      
+      let errorMessage = "Googleサインインに失敗しました。";
+      
+      if (err.message?.includes("OAuth")) {
+        errorMessage += "\n\nOAuth設定に問題がある可能性があります。";
+      } else if (err.message?.includes("network")) {
+        errorMessage += "\n\nネットワーク接続を確認してください。";
+      } else if (err.message?.includes("cancelled")) {
+        errorMessage = "サインインがキャンセルされました。";
+      }
+      
+      Alert.alert("サインインエラー", errorMessage + "\n\nもう一度お試しください。");
     }
   }, [startOAuthFlow, router]);
 
