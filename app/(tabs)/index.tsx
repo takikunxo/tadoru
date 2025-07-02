@@ -427,16 +427,19 @@ export default function App() {
             <Animated.View
               style={[
                 styles.settingsPanel,
-                { transform: [{ translateX: settingsPanelAnimation }] },
+                { 
+                  transform: [{ translateX: settingsPanelAnimation }],
+                  backgroundColor: colorScheme === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)'
+                },
               ]}
             >
-            <View style={styles.settingsPanelHeader}>
-              <Text style={styles.settingsPanelTitle}>カメラ設定</Text>
+            <View style={[styles.settingsPanelHeader, { borderBottomColor: colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)' }]}>
+              <Text style={[styles.settingsPanelTitle, { color: colors.text }]}>カメラ設定</Text>
               <TouchableOpacity
                 style={styles.closePanelButton}
                 onPress={toggleSettingsPanel}
               >
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
             
@@ -445,8 +448,8 @@ export default function App() {
                 <View style={styles.settingInfo}>
                   <Ionicons name="timer-outline" size={20} color="#007AFF" />
                   <View style={styles.settingTextContainer}>
-                    <Text style={styles.settingTitle}>タイマー時間</Text>
-                    <Text style={styles.settingSubtitle}>撮影までのカウントダウン時間</Text>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>タイマー時間</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>撮影までのカウントダウン時間</Text>
                   </View>
                 </View>
                 <View style={styles.timerOptions}>
@@ -455,14 +458,19 @@ export default function App() {
                       key={seconds}
                       style={[
                         styles.timerOption,
-                        timerDuration === seconds && styles.timerOptionActive,
+                        { 
+                          backgroundColor: timerDuration === seconds ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'),
+                          borderColor: timerDuration === seconds ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)')
+                        },
                       ]}
                       onPress={() => saveTimerSetting(seconds)}
                     >
                       <Text
                         style={[
                           styles.timerOptionText,
-                          timerDuration === seconds && styles.timerOptionTextActive,
+                          { 
+                            color: timerDuration === seconds ? '#fff' : colors.text
+                          }
                         ]}
                       >
                         {seconds === 0 ? "なし" : `${seconds}秒`}
@@ -476,16 +484,16 @@ export default function App() {
                 <View style={styles.settingInfo}>
                   <Ionicons name="volume-high-outline" size={20} color="#34C759" />
                   <View style={styles.settingTextContainer}>
-                    <Text style={styles.settingTitle}>音声カウントダウン</Text>
-                    <Text style={styles.settingSubtitle}>タイマー時の数字読み上げ</Text>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>音声カウントダウン</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>タイマー時の数字読み上げ</Text>
                   </View>
                 </View>
                 <Switch
                   value={voiceEnabled}
                   onValueChange={saveVoiceSetting}
-                  trackColor={{ false: "#374151", true: "#34C759" }}
-                  thumbColor={voiceEnabled ? "#ffffff" : "#9ca3af"}
-                  ios_backgroundColor="#374151"
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={voiceEnabled ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
                 />
               </View>
               
@@ -493,16 +501,16 @@ export default function App() {
                 <View style={styles.settingInfo}>
                   <Ionicons name="grid-outline" size={20} color="#FF9500" />
                   <View style={styles.settingTextContainer}>
-                    <Text style={styles.settingTitle}>撮影ガイド</Text>
-                    <Text style={styles.settingSubtitle}>全身撮影時の案内メッセージ</Text>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>撮影ガイド</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>全身撮影時の案内メッセージ</Text>
                   </View>
                 </View>
                 <Switch
                   value={annotationsEnabled}
                   onValueChange={saveAnnotationsSetting}
-                  trackColor={{ false: "#374151", true: "#34C759" }}
-                  thumbColor={annotationsEnabled ? "#ffffff" : "#9ca3af"}
-                  ios_backgroundColor="#374151"
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={annotationsEnabled ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
                 />
               </View>
               
@@ -510,16 +518,16 @@ export default function App() {
                 <View style={styles.settingInfo}>
                   <Ionicons name="camera-outline" size={20} color="#8B5CF6" />
                   <View style={styles.settingTextContainer}>
-                    <Text style={styles.settingTitle}>連写モード</Text>
-                    <Text style={styles.settingSubtitle}>5枚連続で撮影する</Text>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>連写モード</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>5枚連続で撮影する</Text>
                   </View>
                 </View>
                 <Switch
                   value={burstMode}
                   onValueChange={setBurstMode}
-                  trackColor={{ false: "#374151", true: "#34C759" }}
-                  thumbColor={burstMode ? "#ffffff" : "#9ca3af"}
-                  ios_backgroundColor="#374151"
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={burstMode ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
                 />
               </View>
               
@@ -527,8 +535,8 @@ export default function App() {
                 <View style={styles.settingInfo}>
                   <Ionicons name="resize-outline" size={20} color="#007AFF" />
                   <View style={styles.settingTextContainer}>
-                    <Text style={styles.settingTitle}>アスペクト比</Text>
-                    <Text style={styles.settingSubtitle}>写真の縦横比を選択</Text>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>アスペクト比</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>写真の縦横比を選択</Text>
                   </View>
                 </View>
                 <View style={styles.aspectRatioOptions}>
@@ -541,14 +549,19 @@ export default function App() {
                       key={ratio}
                       style={[
                         styles.aspectRatioOption,
-                        aspectRatio === ratio && styles.aspectRatioOptionActive,
+                        { 
+                          backgroundColor: aspectRatio === ratio ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'),
+                          borderColor: aspectRatio === ratio ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)')
+                        },
                       ]}
                       onPress={() => saveAspectRatioSetting(ratio)}
                     >
                       <Text
                         style={[
                           styles.aspectRatioOptionText,
-                          aspectRatio === ratio && styles.aspectRatioOptionTextActive,
+                          { 
+                            color: aspectRatio === ratio ? '#fff' : colors.text
+                          }
                         ]}
                       >
                         {ratio}
@@ -556,7 +569,9 @@ export default function App() {
                       <Text
                         style={[
                           styles.aspectRatioOptionLabel,
-                          aspectRatio === ratio && styles.aspectRatioOptionLabelActive,
+                          { 
+                            color: aspectRatio === ratio ? 'rgba(255, 255, 255, 0.9)' : (colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.6)')
+                          }
                         ]}
                       >
                         {label}
@@ -830,7 +845,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 300,
-    backgroundColor: "rgba(0, 0, 0, 0.95)",
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: "#000",
@@ -847,13 +861,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
     marginTop: 50,
   },
   settingsPanelTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
   },
   closePanelButton: {
     padding: 5,
@@ -878,12 +890,10 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
     marginBottom: 2,
   },
   settingSubtitle: {
     fontSize: 13,
-    color: "rgba(255, 255, 255, 0.7)",
   },
   timerOptions: {
     flexDirection: "row",
@@ -894,23 +904,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
     minWidth: 50,
     alignItems: "center",
-  },
-  timerOptionActive: {
-    backgroundColor: "#007AFF",
-    borderColor: "#007AFF",
   },
   timerOptionText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "rgba(255, 255, 255, 0.8)",
-  },
-  timerOptionTextActive: {
-    color: "#fff",
   },
   spacer: {
     width: 50,
@@ -960,35 +960,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
     minWidth: 75,
     alignItems: "center",
     flex: 1,
     maxWidth: 90,
   },
-  aspectRatioOptionActive: {
-    backgroundColor: "#007AFF",
-    borderColor: "#007AFF",
-  },
   aspectRatioOptionText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.8)",
     marginBottom: 2,
-  },
-  aspectRatioOptionTextActive: {
-    color: "#fff",
   },
   aspectRatioOptionLabel: {
     fontSize: 10,
     fontWeight: "400",
-    color: "rgba(255, 255, 255, 0.6)",
     textAlign: "center",
-  },
-  aspectRatioOptionLabelActive: {
-    color: "rgba(255, 255, 255, 0.9)",
   },
   settingsOverlay: {
     position: "absolute",
