@@ -521,7 +521,11 @@ export default function App() {
                   </View>
                 </View>
                 <View style={styles.aspectRatioOptions}>
-                  {(['16:9', '4:3', '1:1'] as const).map((ratio) => (
+                  {([
+                    { ratio: '16:9', label: 'ストーリー' },
+                    { ratio: '4:3', label: '標準' },
+                    { ratio: '1:1', label: 'Instagram' }
+                  ] as const).map(({ ratio, label }) => (
                     <Pressable
                       key={ratio}
                       style={[
@@ -537,6 +541,14 @@ export default function App() {
                         ]}
                       >
                         {ratio}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.aspectRatioOptionLabel,
+                          aspectRatio === ratio && styles.aspectRatioOptionLabelActive,
+                        ]}
+                      >
+                        {label}
                       </Text>
                     </Pressable>
                   ))}
@@ -932,14 +944,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   aspectRatioOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     borderRadius: 16,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.2)",
-    minWidth: 60,
+    minWidth: 75,
     alignItems: "center",
+    flex: 1,
+    maxWidth: 90,
   },
   aspectRatioOptionActive: {
     backgroundColor: "#007AFF",
@@ -947,10 +961,20 @@ const styles = StyleSheet.create({
   },
   aspectRatioOptionText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     color: "rgba(255, 255, 255, 0.8)",
+    marginBottom: 2,
   },
   aspectRatioOptionTextActive: {
     color: "#fff",
+  },
+  aspectRatioOptionLabel: {
+    fontSize: 10,
+    fontWeight: "400",
+    color: "rgba(255, 255, 255, 0.6)",
+    textAlign: "center",
+  },
+  aspectRatioOptionLabelActive: {
+    color: "rgba(255, 255, 255, 0.9)",
   },
 });
