@@ -5,7 +5,8 @@
       "Bash(rm:*)",
       "Bash(npm uninstall:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:clerk.com)"
     ],
     "deny": []
   }
