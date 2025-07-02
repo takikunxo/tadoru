@@ -335,31 +335,16 @@ export default function App() {
             ]}
           />
           {annotationsEnabled && (
-            <>
-              <View style={styles.instructionContainer}>
-                <View style={styles.instructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    頭のてっぺんをこの辺りに🙎
-                  </Text>
-                  <View style={styles.bubbleTail} />
-                </View>
+            <View style={styles.labelGuide} pointerEvents="none">
+              <View style={styles.headGuide}>
+                <View style={styles.headLine} />
+                <Text style={styles.guideLabel}>頭</Text>
               </View>
-              <View style={styles.cameraInstructionContainer}>
-                <View style={styles.cameraInstructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    カメラはまっすぐ、斜めにならないように✨
-                  </Text>
-                </View>
+              <View style={styles.footGuide}>
+                <View style={styles.footLine} />
+                <Text style={styles.guideLabel}>足</Text>
               </View>
-              <View style={styles.footInstructionContainer}>
-                <View style={styles.footInstructionBubble}>
-                  <Text style={styles.cameraInstructionText}>
-                    つま先は一番下のラインに👣
-                  </Text>
-                  <View style={styles.footBubbleTail} />
-                </View>
-              </View>
-            </>
+            </View>
           )}
         </View>
       </View>
@@ -992,5 +977,54 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     zIndex: 1,
+  },
+  labelGuide: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  headGuide: {
+    position: "absolute",
+    top: "35%",
+    left: "15%",
+    right: "15%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  footGuide: {
+    position: "absolute",
+    bottom: "2%",
+    left: "15%",
+    right: "15%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 1,
+    marginRight: 8,
+  },
+  footLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 1,
+    marginRight: 8,
+  },
+  guideLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    fontWeight: "600",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
