@@ -16,6 +16,7 @@ import {
   Animated,
   Switch,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/Colors';
@@ -443,7 +444,11 @@ export default function App() {
               </TouchableOpacity>
             </View>
             
-            <View style={styles.settingsPanelContent}>
+            <ScrollView 
+              style={styles.settingsPanelContent}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.settingsPanelScrollContent}
+            >
               <View style={styles.settingItem}>
                 <View style={styles.settingInfo}>
                   <Ionicons name="timer-outline" size={20} color="#007AFF" />
@@ -580,7 +585,7 @@ export default function App() {
                   ))}
                 </View>
               </View>
-            </View>
+            </ScrollView>
             </Animated.View>
           </PanGestureHandler>
         </>
@@ -873,7 +878,10 @@ const styles = StyleSheet.create({
   settingsPanelContent: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  settingsPanelScrollContent: {
     paddingTop: 20,
+    paddingBottom: 60,
   },
   settingItem: {
     marginBottom: 24,
