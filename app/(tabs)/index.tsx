@@ -344,6 +344,9 @@ export default function App() {
                 <View style={styles.footLine} />
                 <Text style={styles.guideLabel}>足</Text>
               </View>
+              <View style={styles.levelGuide}>
+                <Text style={styles.levelLabel}>カメラは被写体と並行に</Text>
+              </View>
             </View>
           )}
         </View>
@@ -1023,6 +1026,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  levelGuide: {
+    position: "absolute",
+    top: "10%",
+    left: "15%",
+    right: "15%",
+    alignItems: "center",
+  },
+  levelLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 11,
+    fontWeight: "500",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    textAlign: "center",
     textShadowColor: "rgba(0, 0, 0, 0.8)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
