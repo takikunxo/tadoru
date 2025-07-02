@@ -409,16 +409,22 @@ export default function App() {
       </View>
       
       {showSettingsPanel && (
-        <PanGestureHandler
-          onGestureEvent={onGestureEvent}
-          onHandlerStateChange={onHandlerStateChange}
-        >
-          <Animated.View
-            style={[
-              styles.settingsPanel,
-              { transform: [{ translateX: settingsPanelAnimation }] },
-            ]}
+        <>
+          <TouchableOpacity
+            style={styles.settingsOverlay}
+            activeOpacity={1}
+            onPress={toggleSettingsPanel}
+          />
+          <PanGestureHandler
+            onGestureEvent={onGestureEvent}
+            onHandlerStateChange={onHandlerStateChange}
           >
+            <Animated.View
+              style={[
+                styles.settingsPanel,
+                { transform: [{ translateX: settingsPanelAnimation }] },
+              ]}
+            >
             <View style={styles.settingsPanelHeader}>
               <Text style={styles.settingsPanelTitle}>カメラ設定</Text>
               <TouchableOpacity
@@ -555,8 +561,9 @@ export default function App() {
                 </View>
               </View>
             </View>
-          </Animated.View>
-        </PanGestureHandler>
+            </Animated.View>
+          </PanGestureHandler>
+        </>
       )}
     </GestureHandlerRootView>
   );
@@ -826,6 +833,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 10,
     elevation: 10,
+    zIndex: 2,
   },
   settingsPanelHeader: {
     flexDirection: "row",
@@ -976,5 +984,14 @@ const styles = StyleSheet.create({
   },
   aspectRatioOptionLabelActive: {
     color: "rgba(255, 255, 255, 0.9)",
+  },
+  settingsOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1,
   },
 });
