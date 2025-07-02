@@ -183,7 +183,7 @@ export default function SettingsScreen() {
                     撮影ガイド
                   </ThemedText>
                   <ThemedText style={styles.settingHint}>
-                    案内メッセージ
+                    全身撮影時の案内メッセージ
                   </ThemedText>
                 </ThemedView>
               </ThemedView>

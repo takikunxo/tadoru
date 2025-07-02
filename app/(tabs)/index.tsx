@@ -27,7 +27,6 @@ export default function App() {
   const [burstMode, setBurstMode] = useState(false);
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);
-  const [shootingMode, setShootingMode] = useState<"body" | "face">("body");
   const [timerDuration, setTimerDuration] = useState(0);
 
   useEffect(() => {
@@ -198,42 +197,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.modeToggleContainer}>
-        <TouchableOpacity
-          style={[
-            styles.modeToggleButton,
-            shootingMode === "body" && styles.modeToggleButtonActive,
-          ]}
-          onPress={() => setShootingMode("body")}
-          disabled={isTimerActive || isBurstActive}
-        >
-          <Text
-            style={[
-              styles.modeToggleText,
-              shootingMode === "body" && styles.modeToggleTextActive,
-            ]}
-          >
-            全身撮影
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.modeToggleButton,
-            shootingMode === "face" && styles.modeToggleButtonActive,
-          ]}
-          onPress={() => setShootingMode("face")}
-          disabled={isTimerActive || isBurstActive}
-        >
-          <Text
-            style={[
-              styles.modeToggleText,
-              shootingMode === "face" && styles.modeToggleTextActive,
-            ]}
-          >
-            顔写真
-          </Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
@@ -258,47 +221,31 @@ export default function App() {
               { top: "66.66%" },
             ]}
           />
-          {shootingMode === "face" && <View style={styles.faceGuideBox} />}
           {annotationsEnabled && (
             <>
-              {shootingMode === "body" ? (
-                <>
-                  <View style={styles.instructionContainer}>
-                    <View style={styles.instructionBubble}>
-                      <Text style={styles.cameraInstructionText}>
-                        頭のてっぺんをこの辺りに🙎
-                      </Text>
-                      <View style={styles.bubbleTail} />
-                    </View>
-                  </View>
-                  <View style={styles.cameraInstructionContainer}>
-                    <View style={styles.cameraInstructionBubble}>
-                      <Text style={styles.cameraInstructionText}>
-                        カメラはまっすぐ、斜めにならないように✨
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.footInstructionContainer}>
-                    <View style={styles.footInstructionBubble}>
-                      <Text style={styles.cameraInstructionText}>
-                        つま先は一番下のラインに👣
-                      </Text>
-                      <View style={styles.footBubbleTail} />
-                    </View>
-                  </View>
-                </>
-              ) : (
-                <>
-                  <View style={styles.faceInstructionContainer}>
-                    <View style={styles.faceInstructionBubble}>
-                      <Text style={styles.cameraInstructionText}>
-                        広角で顔が中央の枠に👤
-                      </Text>
-                      <View style={styles.faceBubbleTail} />
-                    </View>
-                  </View>
-                </>
-              )}
+              <View style={styles.instructionContainer}>
+                <View style={styles.instructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    頭のてっぺんをこの辺りに🙎
+                  </Text>
+                  <View style={styles.bubbleTail} />
+                </View>
+              </View>
+              <View style={styles.cameraInstructionContainer}>
+                <View style={styles.cameraInstructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    カメラはまっすぐ、斜めにならないように✨
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.footInstructionContainer}>
+                <View style={styles.footInstructionBubble}>
+                  <Text style={styles.cameraInstructionText}>
+                    つま先は一番下のラインに👣
+                  </Text>
+                  <View style={styles.footBubbleTail} />
+                </View>
+              </View>
             </>
           )}
         </View>
@@ -627,76 +574,5 @@ const styles = StyleSheet.create({
   },
   burstToggleTextActive: {
     color: "#000",
-  },
-  modeToggleContainer: {
-    position: "absolute",
-    top: 50,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-    zIndex: 1,
-  },
-  modeToggleButton: {
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  modeToggleButtonActive: {
-    backgroundColor: "#fff",
-  },
-  modeToggleText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  modeToggleTextActive: {
-    color: "#000",
-  },
-  faceGuideBox: {
-    position: "absolute",
-    left: "33.33%",
-    top: "33.33%",
-    width: "33.34%",
-    height: "33.34%",
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.8)",
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-  },
-  faceInstructionContainer: {
-    position: "absolute",
-    top: "20%",
-    alignSelf: "center",
-    alignItems: "center",
-  },
-  faceInstructionBubble: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255, 107, 107, 0.3)",
-    shadowColor: "#FF6B6B",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-    position: "relative",
-  },
-  faceBubbleTail: {
-    position: "absolute",
-    bottom: -6,
-    alignSelf: "center",
-    width: 0,
-    height: 0,
-    borderLeftWidth: 6,
-    borderRightWidth: 6,
-    borderTopWidth: 6,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderTopColor: "rgba(255, 255, 255, 0.95)",
   },
 });
