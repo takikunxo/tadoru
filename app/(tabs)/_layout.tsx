@@ -46,8 +46,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: '設定',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
+          title: 'アカウント',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.circle" color={color} />,
         }}
       />
     </Tabs>

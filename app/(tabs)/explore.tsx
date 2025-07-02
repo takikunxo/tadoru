@@ -8,8 +8,6 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Switch,
-  Text,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
@@ -20,60 +18,8 @@ export default function SettingsScreen() {
   const { signOut } = useAuth();
   const { user } = useUser();
   const router = useRouter();
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
-  const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
-  const [timerDuration, setTimerDuration] = useState(0);
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
 
-  const loadSettings = async () => {
-    try {
-      const voice = await AsyncStorage.getItem("voiceEnabled");
-      const annotations = await AsyncStorage.getItem("annotationsEnabled");
-      const timer = await AsyncStorage.getItem("timerDuration");
-
-      if (voice !== null) {
-        setVoiceEnabled(JSON.parse(voice));
-      }
-      if (annotations !== null) {
-        setAnnotationsEnabled(JSON.parse(annotations));
-      }
-      if (timer !== null) {
-        setTimerDuration(JSON.parse(timer));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const saveVoiceSetting = async (value: boolean) => {
-    try {
-      await AsyncStorage.setItem("voiceEnabled", JSON.stringify(value));
-      setVoiceEnabled(value);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const saveAnnotationsSetting = async (value: boolean) => {
-    try {
-      await AsyncStorage.setItem("annotationsEnabled", JSON.stringify(value));
-      setAnnotationsEnabled(value);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const saveTimerSetting = async (value: number) => {
-    try {
-      await AsyncStorage.setItem("timerDuration", JSON.stringify(value));
-      setTimerDuration(value);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleSignOut = () => {
     Alert.alert("ログアウト", "ログアウトしますか？", [
@@ -103,99 +49,6 @@ export default function SettingsScreen() {
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
-          <ThemedView style={styles.settingsCard}>
-            <ThemedView style={styles.cardHeader}>
-              <IconSymbol name="camera" size={24} color="#007AFF" />
-              <ThemedText style={styles.cardTitle}>カメラ機能</ThemedText>
-            </ThemedView>
-            <ThemedView style={styles.settingRow}>
-              <ThemedView style={styles.settingInfo}>
-                <ThemedView style={styles.settingIconContainer}>
-                  <IconSymbol name="timer" size={20} color="#007AFF" />
-                </ThemedView>
-                <ThemedView style={styles.settingDetails}>
-                  <ThemedText style={styles.settingLabel}>
-                    タイマー時間
-                  </ThemedText>
-                  <ThemedText style={styles.settingHint}>
-                    撮影までのカウントダウン時間
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-              <ThemedView style={styles.timerPicker}>
-                {[0, 1, 2, 3, 5].map((seconds) => (
-                  <Pressable
-                    key={seconds}
-                    style={[
-                      styles.timerOption,
-                      timerDuration === seconds && styles.timerOptionActive,
-                    ]}
-                    onPress={() => saveTimerSetting(seconds)}
-                  >
-                    <Text
-                      style={[
-                        styles.timerOptionText,
-                        timerDuration === seconds &&
-                          styles.timerOptionTextActive,
-                      ]}
-                    >
-                      {seconds === 0 ? "なし" : `${seconds}秒`}
-                    </Text>
-                  </Pressable>
-                ))}
-              </ThemedView>
-            </ThemedView>
-
-            <ThemedView style={styles.divider} />
-
-            <ThemedView style={styles.settingRow}>
-              <ThemedView style={styles.settingInfo}>
-                <ThemedView style={styles.settingIconContainer}>
-                  <IconSymbol name="speaker.wave.2" size={20} color="#34C759" />
-                </ThemedView>
-                <ThemedView style={styles.settingDetails}>
-                  <ThemedText style={styles.settingLabel}>
-                    音声カウントダウン
-                  </ThemedText>
-                  <ThemedText style={styles.settingHint}>
-                    タイマー時の数字読み上げ
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-              <Switch
-                value={voiceEnabled}
-                onValueChange={saveVoiceSetting}
-                trackColor={{ false: "#E5E5EA", true: "#34C759" }}
-                thumbColor={"#fff"}
-                ios_backgroundColor="#E5E5EA"
-              />
-            </ThemedView>
-
-            <ThemedView style={styles.divider} />
-
-            <ThemedView style={styles.settingRow}>
-              <ThemedView style={styles.settingInfo}>
-                <ThemedView style={styles.settingIconContainer}>
-                  <IconSymbol name="grid" size={20} color="#FF9500" />
-                </ThemedView>
-                <ThemedView style={styles.settingDetails}>
-                  <ThemedText style={styles.settingLabel}>
-                    撮影ガイド
-                  </ThemedText>
-                  <ThemedText style={styles.settingHint}>
-                    全身撮影時の案内メッセージ
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-              <Switch
-                value={annotationsEnabled}
-                onValueChange={saveAnnotationsSetting}
-                trackColor={{ false: "#E5E5EA", true: "#34C759" }}
-                thumbColor={"#fff"}
-                ios_backgroundColor="#E5E5EA"
-              />
-            </ThemedView>
-          </ThemedView>
 
           <ThemedView style={styles.settingsCard}>
             <ThemedView style={styles.cardHeader}>

@@ -13,7 +13,11 @@ import {
   TouchableOpacity,
   View,
   useColorScheme,
+  Animated,
+  Switch,
+  Pressable,
 } from "react-native";
+import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/Colors';
 
 export default function App() {
@@ -32,6 +36,8 @@ export default function App() {
   const [burstCount, setBurstCount] = useState(0);
   const [isBurstActive, setIsBurstActive] = useState(false);
   const [timerDuration, setTimerDuration] = useState(0);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
+  const settingsPanelAnimation = useRef(new Animated.Value(-300)).current;
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -98,6 +104,75 @@ export default function App() {
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const saveTimerSetting = async (value: number) => {
+    try {
+      await AsyncStorage.setItem("timerDuration", JSON.stringify(value));
+      setTimerDuration(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveAnnotationsSetting = async (value: boolean) => {
+    try {
+      await AsyncStorage.setItem("annotationsEnabled", JSON.stringify(value));
+      setAnnotationsEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveVoiceSetting = async (value: boolean) => {
+    try {
+      await AsyncStorage.setItem("voiceEnabled", JSON.stringify(value));
+      setVoiceEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const toggleSettingsPanel = () => {
+    if (showSettingsPanel) {
+      Animated.timing(settingsPanelAnimation, {
+        toValue: -300,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowSettingsPanel(false));
+    } else {
+      setShowSettingsPanel(true);
+      Animated.timing(settingsPanelAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const onGestureEvent = Animated.event(
+    [{ nativeEvent: { translationX: settingsPanelAnimation } }],
+    { useNativeDriver: true }
+  );
+
+  const onHandlerStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX, velocityX } = event.nativeEvent;
+      
+      if (translationX < -100 || velocityX < -500) {
+        Animated.timing(settingsPanelAnimation, {
+          toValue: -300,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => setShowSettingsPanel(false));
+      } else {
+        Animated.timing(settingsPanelAnimation, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+      }
     }
   };
 
@@ -209,7 +284,7 @@ export default function App() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <GestureHandlerRootView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
@@ -265,13 +340,13 @@ export default function App() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={styles.zoomButton}
-          onPress={toggleZoom}
+          style={styles.settingsButton}
+          onPress={toggleSettingsPanel}
           disabled={isTimerActive || isBurstActive}
         >
-          <View style={styles.zoomButtonInner}>
+          <View style={styles.settingsButtonInner}>
             <Ionicons
-              name={zoomLevel === 0 ? "contract-outline" : "expand-outline"}
+              name="settings-outline"
               size={24}
               color="#fff"
             />
@@ -300,39 +375,128 @@ export default function App() {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.burstToggleButton,
-            burstMode && styles.burstToggleButtonActive,
-          ]}
-          onPress={() => setBurstMode(!burstMode)}
+          style={styles.zoomButton}
+          onPress={toggleZoom}
           disabled={isTimerActive || isBurstActive}
         >
-          <View style={styles.burstToggleButtonInner}>
+          <View style={styles.zoomButtonInner}>
             <Ionicons
-              name="camera-outline"
-              size={20}
-              color={burstMode ? "#000" : "#fff"}
+              name={zoomLevel === 0 ? "contract-outline" : "expand-outline"}
+              size={24}
+              color="#fff"
             />
-            <Text
-              style={[
-                styles.burstToggleText,
-                burstMode && styles.burstToggleTextActive,
-              ]}
-            >
-              連写
-            </Text>
-            <Text
-              style={[
-                styles.burstToggleText,
-                burstMode && styles.burstToggleTextActive,
-              ]}
-            >
-              モード
-            </Text>
           </View>
         </TouchableOpacity>
       </View>
-    </View>
+      
+      {showSettingsPanel && (
+        <PanGestureHandler
+          onGestureEvent={onGestureEvent}
+          onHandlerStateChange={onHandlerStateChange}
+        >
+          <Animated.View
+            style={[
+              styles.settingsPanel,
+              { transform: [{ translateX: settingsPanelAnimation }] },
+            ]}
+          >
+            <View style={styles.settingsPanelHeader}>
+              <Text style={styles.settingsPanelTitle}>カメラ設定</Text>
+              <TouchableOpacity
+                style={styles.closePanelButton}
+                onPress={toggleSettingsPanel}
+              >
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.settingsPanelContent}>
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="timer-outline" size={20} color="#007AFF" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={styles.settingTitle}>タイマー時間</Text>
+                    <Text style={styles.settingSubtitle}>撮影までのカウントダウン時間</Text>
+                  </View>
+                </View>
+                <View style={styles.timerOptions}>
+                  {[0, 1, 2, 3, 5].map((seconds) => (
+                    <Pressable
+                      key={seconds}
+                      style={[
+                        styles.timerOption,
+                        timerDuration === seconds && styles.timerOptionActive,
+                      ]}
+                      onPress={() => saveTimerSetting(seconds)}
+                    >
+                      <Text
+                        style={[
+                          styles.timerOptionText,
+                          timerDuration === seconds && styles.timerOptionTextActive,
+                        ]}
+                      >
+                        {seconds === 0 ? "なし" : `${seconds}秒`}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="volume-high-outline" size={20} color="#34C759" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={styles.settingTitle}>音声カウントダウン</Text>
+                    <Text style={styles.settingSubtitle}>タイマー時の数字読み上げ</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={voiceEnabled}
+                  onValueChange={saveVoiceSetting}
+                  trackColor={{ false: "#374151", true: "#34C759" }}
+                  thumbColor={voiceEnabled ? "#ffffff" : "#9ca3af"}
+                  ios_backgroundColor="#374151"
+                />
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="grid-outline" size={20} color="#FF9500" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={styles.settingTitle}>撮影ガイド</Text>
+                    <Text style={styles.settingSubtitle}>全身撮影時の案内メッセージ</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={annotationsEnabled}
+                  onValueChange={saveAnnotationsSetting}
+                  trackColor={{ false: "#374151", true: "#34C759" }}
+                  thumbColor={annotationsEnabled ? "#ffffff" : "#9ca3af"}
+                  ios_backgroundColor="#374151"
+                />
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="camera-outline" size={20} color="#8B5CF6" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={styles.settingTitle}>連写モード</Text>
+                    <Text style={styles.settingSubtitle}>5枚連続で撮影する</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={burstMode}
+                  onValueChange={setBurstMode}
+                  trackColor={{ false: "#374151", true: "#34C759" }}
+                  thumbColor={burstMode ? "#ffffff" : "#9ca3af"}
+                  ios_backgroundColor="#374151"
+                />
+              </View>
+            </View>
+          </Animated.View>
+        </PanGestureHandler>
+      )}
+    </GestureHandlerRootView>
   );
 }
 
@@ -534,6 +698,25 @@ const styles = StyleSheet.create({
     borderRightColor: "transparent",
     borderTopColor: "rgba(0, 0, 0, 0.85)",
   },
+  settingsButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  settingsButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
   zoomButton: {
     alignItems: "center",
     justifyContent: "center",
@@ -552,6 +735,93 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: "100%",
+  },
+  settingsPanel: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 300,
+    backgroundColor: "rgba(0, 0, 0, 0.95)",
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  settingsPanelHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    marginTop: 50,
+  },
+  settingsPanelTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  closePanelButton: {
+    padding: 5,
+  },
+  settingsPanelContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  settingItem: {
+    marginBottom: 24,
+  },
+  settingInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  settingTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 2,
+  },
+  settingSubtitle: {
+    fontSize: 13,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+  timerOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  timerOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    minWidth: 50,
+    alignItems: "center",
+  },
+  timerOptionActive: {
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  timerOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  timerOptionTextActive: {
+    color: "#fff",
   },
   spacer: {
     width: 50,
