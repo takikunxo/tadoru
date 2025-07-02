@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "Bash(rm:*)",
       "Bash(npm uninstall:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
