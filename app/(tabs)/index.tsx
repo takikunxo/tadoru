@@ -38,6 +38,7 @@ export default function App() {
   const [timerDuration, setTimerDuration] = useState(0);
   const [showSettingsPanel, setShowSettingsPanel] = useState(false);
   const settingsPanelAnimation = useRef(new Animated.Value(-300)).current;
+  const [aspectRatio, setAspectRatio] = useState<'16:9' | '4:3' | '1:1'>('16:9');
 
   useEffect(() => {
     const setupPermissions = async () => {
@@ -92,6 +93,7 @@ export default function App() {
       const voice = await AsyncStorage.getItem("voiceEnabled");
       const annotations = await AsyncStorage.getItem("annotationsEnabled");
       const timer = await AsyncStorage.getItem("timerDuration");
+      const aspect = await AsyncStorage.getItem("aspectRatio");
 
       if (voice !== null) {
         setVoiceEnabled(JSON.parse(voice));
@@ -101,6 +103,9 @@ export default function App() {
       }
       if (timer !== null) {
         setTimerDuration(JSON.parse(timer));
+      }
+      if (aspect !== null) {
+        setAspectRatio(JSON.parse(aspect));
       }
     } catch (error) {
       console.error(error);
@@ -129,6 +134,15 @@ export default function App() {
     try {
       await AsyncStorage.setItem("voiceEnabled", JSON.stringify(value));
       setVoiceEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveAspectRatioSetting = async (value: '16:9' | '4:3' | '1:1') => {
+    try {
+      await AsyncStorage.setItem("aspectRatio", JSON.stringify(value));
+      setAspectRatio(value);
     } catch (error) {
       console.error(error);
     }
@@ -285,7 +299,12 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.cameraContainer}>
+      <View style={[
+        styles.cameraContainer, 
+        aspectRatio === '1:1' ? styles.squareContainer : 
+        aspectRatio === '4:3' ? styles.standardContainer : 
+        styles.wideContainer
+      ]}>
         <CameraView
           style={styles.camera}
           facing="back"
@@ -492,6 +511,37 @@ export default function App() {
                   ios_backgroundColor="#374151"
                 />
               </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="resize-outline" size={20} color="#007AFF" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={styles.settingTitle}>アスペクト比</Text>
+                    <Text style={styles.settingSubtitle}>写真の縦横比を選択</Text>
+                  </View>
+                </View>
+                <View style={styles.aspectRatioOptions}>
+                  {(['16:9', '4:3', '1:1'] as const).map((ratio) => (
+                    <Pressable
+                      key={ratio}
+                      style={[
+                        styles.aspectRatioOption,
+                        aspectRatio === ratio && styles.aspectRatioOptionActive,
+                      ]}
+                      onPress={() => saveAspectRatioSetting(ratio)}
+                    >
+                      <Text
+                        style={[
+                          styles.aspectRatioOptionText,
+                          aspectRatio === ratio && styles.aspectRatioOptionTextActive,
+                        ]}
+                      >
+                        {ratio}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
             </View>
           </Animated.View>
         </PanGestureHandler>
@@ -501,7 +551,6 @@ export default function App() {
 }
 
 const { width } = Dimensions.get("window");
-const cameraHeight = (width * 16) / 9;
 
 const styles = StyleSheet.create({
   container: {
@@ -513,11 +562,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   cameraContainer: {
-    width: width,
-    height: cameraHeight,
     alignSelf: "center",
     position: "absolute",
-    bottom: 80,
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -width / 2 }],
+  },
+  wideContainer: {
+    width: width,
+    height: (width * 16) / 9,
+    marginTop: -((width * 16) / 9) / 2,
+  },
+  standardContainer: {
+    width: width,
+    height: (width * 4) / 3,
+    marginTop: -((width * 4) / 3) / 2,
+  },
+  squareContainer: {
+    width: width,
+    height: width,
+    marginTop: -width / 2,
   },
   camera: {
     flex: 1,
@@ -861,5 +925,32 @@ const styles = StyleSheet.create({
   },
   burstToggleTextActive: {
     color: "#000",
+  },
+  aspectRatioOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  aspectRatioOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+    minWidth: 60,
+    alignItems: "center",
+  },
+  aspectRatioOptionActive: {
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  aspectRatioOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  aspectRatioOptionTextActive: {
+    color: "#fff",
   },
 });
