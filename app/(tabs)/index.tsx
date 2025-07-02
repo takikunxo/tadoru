@@ -21,7 +21,7 @@ export default function App() {
   const cameraRef = useRef<CameraView>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(0.1);
+  const [zoomLevel, setZoomLevel] = useState(0);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
   const [burstMode, setBurstMode] = useState(false);
@@ -60,7 +60,16 @@ export default function App() {
     permission?.granted,
     requestMediaLibraryPermission,
     requestPermission,
-  ]); // 依存配列を空にして初回のみ実行
+  ]);
+
+  useEffect(() => {
+    if (permission?.granted && mediaLibraryPermission?.granted) {
+      const timer = setTimeout(() => {
+        setZoomLevel(0.1);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [permission?.granted, mediaLibraryPermission?.granted]);
 
   useFocusEffect(
     React.useCallback(() => {
