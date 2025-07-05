@@ -16,7 +16,8 @@ WebBrowser.maybeCompleteAuthSession();
 
 export default function SignInScreen() {
   const { isSignedIn } = useAuth();
-  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  const { startOAuthFlow: startGoogleOAuth } = useOAuth({ strategy: "oauth_google" });
+  const { startOAuthFlow: startAppleOAuth } = useOAuth({ strategy: "oauth_apple" });
   const router = useRouter();
 
   React.useEffect(() => {
@@ -25,12 +26,12 @@ export default function SignInScreen() {
     }
   }, [isSignedIn]);
 
-  const onSignInPress = React.useCallback(async () => {
+  const onGoogleSignInPress = React.useCallback(async () => {
     try {
-      console.log("Starting OAuth flow...");
-      const { createdSessionId, setActive, signIn, signUp } = await startOAuthFlow();
+      console.log("Starting Google OAuth flow...");
+      const { createdSessionId, setActive, signIn, signUp } = await startGoogleOAuth();
 
-      console.log("OAuth flow result:", { createdSessionId, signIn, signUp });
+      console.log("Google OAuth flow result:", { createdSessionId, signIn, signUp });
 
       if (createdSessionId) {
         console.log("Setting active session:", createdSessionId);
@@ -41,7 +42,7 @@ export default function SignInScreen() {
         Alert.alert("サインインエラー", "セッションの作成に失敗しました。もう一度お試しください。");
       }
     } catch (err: any) {
-      console.log("OAuth error details:", err);
+      console.log("Google OAuth error details:", err);
       console.log("Error message:", err.message);
       console.log("Error code:", err.code);
       
@@ -57,7 +58,56 @@ export default function SignInScreen() {
       
       Alert.alert("サインインエラー", errorMessage + "\n\nもう一度お試しください。");
     }
-  }, [startOAuthFlow, router]);
+  }, [startGoogleOAuth, router]);
+
+  const onAppleSignInPress = React.useCallback(async () => {
+    try {
+      console.log("Starting Apple OAuth flow...");
+      const { createdSessionId, setActive, signIn, signUp } = await startAppleOAuth();
+
+      console.log("Apple OAuth flow result:", { createdSessionId, signIn, signUp });
+
+      if (createdSessionId) {
+        console.log("Setting active session:", createdSessionId);
+        setActive!({ session: createdSessionId });
+        router.replace("/(tabs)");
+      } else if (signIn) {
+        console.log("Sign in object exists, checking status:", signIn.status);
+        console.log("Sign in firstFactorVerification:", signIn.firstFactorVerification);
+        
+        if (signIn.firstFactorVerification?.error) {
+          console.log("First factor verification error:", signIn.firstFactorVerification.error);
+          Alert.alert("サインインエラー", `認証エラー: ${signIn.firstFactorVerification.error.longMessage || signIn.firstFactorVerification.error.message}`);
+        } else {
+          Alert.alert("サインインエラー", "セッションの作成に失敗しました。もう一度お試しください。");
+        }
+      } else if (signUp) {
+        console.log("Sign up object exists, checking status:", signUp.status);
+        console.log("Sign up verifications:", signUp.verifications);
+        Alert.alert("サインインエラー", "アカウント作成に問題があります。もう一度お試しください。");
+      } else {
+        console.log("No session, signIn, or signUp created");
+        Alert.alert("サインインエラー", "認証プロセスに失敗しました。もう一度お試しください。");
+      }
+    } catch (err: any) {
+      console.log("Apple OAuth error details:", err);
+      console.log("Error message:", err.message);
+      console.log("Error code:", err.code);
+      console.log("Error errors:", err.errors);
+      
+      let errorMessage = "Appleサインインに失敗しました。";
+      
+      if (err.message?.includes("OAuth")) {
+        errorMessage += "\n\nOAuth設定に問題がある可能性があります。";
+      } else if (err.message?.includes("network")) {
+        errorMessage += "\n\nネットワーク接続を確認してください。";
+      } else if (err.message?.includes("cancelled")) {
+        errorMessage = "サインインがキャンセルされました。";
+      }
+      
+      Alert.alert("サインインエラー", errorMessage + "\n\nもう一度お試しください。");
+    }
+  }, [startAppleOAuth, router]);
 
   return (
     <ImageBackground
@@ -72,10 +122,17 @@ export default function SignInScreen() {
             アプリを始めるには、まずサインインしてください
           </Text>
 
-          <Pressable style={styles.button} onPress={onSignInPress}>
+          <Pressable style={styles.appleButton} onPress={onAppleSignInPress}>
+            <View style={styles.buttonContent}>
+              <Ionicons name="logo-apple" size={20} color="#fff" />
+              <Text style={styles.appleButtonText}>Appleでサインイン</Text>
+            </View>
+          </Pressable>
+
+          <Pressable style={styles.googleButton} onPress={onGoogleSignInPress}>
             <View style={styles.buttonContent}>
               <Ionicons name="logo-google" size={20} color="#4285F4" />
-              <Text style={styles.buttonText}>Googleでサインイン</Text>
+              <Text style={styles.googleButtonText}>Googleでサインイン</Text>
             </View>
           </Pressable>
         </View>
@@ -118,7 +175,20 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
-  button: {
+  appleButton: {
+    backgroundColor: "#000",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 50,
+    minWidth: 240,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  googleButton: {
     backgroundColor: "#fff",
     paddingHorizontal: 24,
     paddingVertical: 14,
@@ -138,7 +208,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 12,
   },
-  buttonText: {
+  appleButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  googleButtonText: {
     color: "#333",
     fontSize: 16,
     fontWeight: "600",
