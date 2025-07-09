@@ -13,7 +13,9 @@
       "bundleIdentifier": "com.tacitusxo.tadoru",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSCameraUsageDescription": "カメラを使用して写真を撮影するために使用します。"
+        "NSCameraUsageDescription": "このアプリは写真撮影機能を提供するためにカメラにアクセスします。例えば、アプリ内でカメラボタンをタップすると、デバイスのカメラを使用して写真を撮影できます。",
+        "NSPhotoLibraryUsageDescription": "このアプリは撮影した写真を正常に保存するために写真ライブラリにアクセスします。例えば、アプリで撮影された写真がデバイスの写真ライブラリに適切に保存されているかを確認するために使用されます。",
+        "NSPhotoLibraryAddUsageDescription": "このアプリは撮影した写真をデバイスの写真ライブラリに保存するために使用します。例えば、アプリ内のカメラ機能で撮影した写真は、あなたのデバイスの写真ライブラリに自動的に保存され、後で写真アプリから閲覧・共有できます。"
       }
     },
     "android": {
@@ -43,7 +45,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "$(PRODUCT_NAME)がカメラにアクセスして写真を撮影するために使用します",
+          "cameraPermission": "このアプリは写真撮影機能を提供するためにカメラにアクセスします。例えば、アプリ内でカメラボタンをタップすると、デバイスのカメラを使用して写真を撮影できます。",
           "microphonePermission": "$(PRODUCT_NAME)がマイクにアクセスするために使用します",
           "recordAudioAndroid": true
         }
@@ -51,8 +53,8 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "$(PRODUCT_NAME)が写真にアクセスするために使用します",
-          "savePhotosPermission": "$(PRODUCT_NAME)が写真を保存するために使用します",
+          "photosPermission": "このアプリは撮影した写真を正常に保存するために写真ライブラリにアクセスします。例えば、アプリで撮影された写真がデバイスの写真ライブラリに適切に保存されているかを確認するために使用されます。",
+          "savePhotosPermission": "このアプリは撮影した写真をデバイスの写真ライブラリに保存するために使用します。例えば、アプリ内のカメラ機能で撮影した写真は、あなたのデバイスの写真ライブラリに自動的に保存され、後で写真アプリから閲覧・共有できます。",
           "isAccessMediaLocationEnabled": true
         }
       ]
