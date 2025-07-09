@@ -1,21 +1,14 @@
-import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function Page() {
-  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
   React.useEffect(() => {
-    if (isLoaded) {
-      if (isSignedIn) {
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/sign-in");
-      }
-    }
-  }, [isLoaded, isSignedIn, router]);
+    // 認証不要でカメラ機能にアクセス
+    router.replace("/(tabs)");
+  }, [router]);
 
   return (
     <View style={styles.container}>

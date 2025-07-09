@@ -15,9 +15,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 export default function SettingsScreen() {
-  const { signOut } = useAuth();
+  const { signOut, isSignedIn } = useAuth();
   const { user } = useUser();
   const router = useRouter();
+
 
 
 
@@ -60,12 +61,16 @@ export default function SettingsScreen() {
               <ThemedView style={styles.userInfoRow}>
                 <ThemedText style={styles.userInfoLabel}>ユーザー名</ThemedText>
                 <ThemedText style={styles.userInfoValue}>
-                  {user?.firstName && user?.lastName
-                    ? `${user.lastName} ${user.firstName}`
-                    : user?.firstName ||
-                      user?.lastName ||
-                      user?.emailAddresses[0]?.emailAddress ||
-                      "未設定"}
+                  {isSignedIn ? (
+                    user?.firstName && user?.lastName
+                      ? `${user.lastName} ${user.firstName}`
+                      : user?.firstName ||
+                        user?.lastName ||
+                        user?.emailAddresses[0]?.emailAddress ||
+                        "未設定"
+                  ) : (
+                    "ゲストアカウント"
+                  )}
                 </ThemedText>
               </ThemedView>
               <ThemedView style={styles.userInfoRow}>
@@ -73,21 +78,30 @@ export default function SettingsScreen() {
                   メールアドレス
                 </ThemedText>
                 <ThemedText style={styles.userInfoValue}>
-                  {user?.emailAddresses[0]?.emailAddress || "未設定"}
+                  {isSignedIn ? (
+                    user?.emailAddresses[0]?.emailAddress || "未設定"
+                  ) : (
+                    "未登録"
+                  )}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
           </ThemedView>
 
           <ThemedView style={styles.logoutCard}>
-            <Pressable style={styles.logoutButton} onPress={handleSignOut}>
+            <Pressable 
+              style={styles.logoutButton} 
+              onPress={isSignedIn ? handleSignOut : () => router.push("/sign-in")}
+            >
               <ThemedView style={styles.logoutContent}>
                 <IconSymbol
-                  name="arrow.left.square"
+                  name={isSignedIn ? "arrow.left.square" : "person.circle"}
                   size={20}
-                  color="#FF3B30"
+                  color={isSignedIn ? "#FF3B30" : "#007AFF"}
                 />
-                <ThemedText style={styles.logoutText}>ログアウト</ThemedText>
+                <ThemedText style={[styles.logoutText, { color: isSignedIn ? "#FF3B30" : "#007AFF" }]}>
+                  {isSignedIn ? "ログアウト" : "サインイン"}
+                </ThemedText>
               </ThemedView>
               <IconSymbol name="chevron.right" size={16} color="#C7C7CC" />
             </Pressable>

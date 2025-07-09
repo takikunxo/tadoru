@@ -22,7 +22,11 @@ export default function SignInScreen() {
 
   React.useEffect(() => {
     if (isSignedIn) {
-      router.replace("/(tabs)");
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)");
+      }
     }
   }, [isSignedIn]);
 
@@ -36,15 +40,29 @@ export default function SignInScreen() {
       if (createdSessionId) {
         console.log("Setting active session:", createdSessionId);
         setActive!({ session: createdSessionId });
-        router.replace("/(tabs)");
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)");
+        }
       } else {
-        console.log("No session created");
-        Alert.alert("サインインエラー", "セッションの作成に失敗しました。もう一度お試しください。");
+        console.log("No session created - likely cancelled by user");
+        // セッションが作成されない場合は通常キャンセルなので何もしない
+        return;
       }
     } catch (err: any) {
       console.log("Google OAuth error details:", err);
       console.log("Error message:", err.message);
       console.log("Error code:", err.code);
+      
+      // キャンセルの場合は何も表示しない
+      if (err.message?.includes("cancelled") || 
+          err.message?.includes("canceled") || 
+          err.code === "user_cancelled" ||
+          err.code === "cancelled" ||
+          err.code === "canceled") {
+        return;
+      }
       
       let errorMessage = "Googleサインインに失敗しました。";
       
@@ -52,8 +70,6 @@ export default function SignInScreen() {
         errorMessage += "\n\nOAuth設定に問題がある可能性があります。";
       } else if (err.message?.includes("network")) {
         errorMessage += "\n\nネットワーク接続を確認してください。";
-      } else if (err.message?.includes("cancelled")) {
-        errorMessage = "サインインがキャンセルされました。";
       }
       
       Alert.alert("サインインエラー", errorMessage + "\n\nもう一度お試しください。");
@@ -70,24 +86,15 @@ export default function SignInScreen() {
       if (createdSessionId) {
         console.log("Setting active session:", createdSessionId);
         setActive!({ session: createdSessionId });
-        router.replace("/(tabs)");
-      } else if (signIn) {
-        console.log("Sign in object exists, checking status:", signIn.status);
-        console.log("Sign in firstFactorVerification:", signIn.firstFactorVerification);
-        
-        if (signIn.firstFactorVerification?.error) {
-          console.log("First factor verification error:", signIn.firstFactorVerification.error);
-          Alert.alert("サインインエラー", `認証エラー: ${signIn.firstFactorVerification.error.longMessage || signIn.firstFactorVerification.error.message}`);
+        if (router.canGoBack()) {
+          router.back();
         } else {
-          Alert.alert("サインインエラー", "セッションの作成に失敗しました。もう一度お試しください。");
+          router.replace("/(tabs)");
         }
-      } else if (signUp) {
-        console.log("Sign up object exists, checking status:", signUp.status);
-        console.log("Sign up verifications:", signUp.verifications);
-        Alert.alert("サインインエラー", "アカウント作成に問題があります。もう一度お試しください。");
       } else {
-        console.log("No session, signIn, or signUp created");
-        Alert.alert("サインインエラー", "認証プロセスに失敗しました。もう一度お試しください。");
+        console.log("No session created - likely cancelled by user");
+        // セッションが作成されない場合は通常キャンセルなので何もしない
+        return;
       }
     } catch (err: any) {
       console.log("Apple OAuth error details:", err);
@@ -95,14 +102,21 @@ export default function SignInScreen() {
       console.log("Error code:", err.code);
       console.log("Error errors:", err.errors);
       
+      // キャンセルの場合は何も表示しない
+      if (err.message?.includes("cancelled") || 
+          err.message?.includes("canceled") || 
+          err.code === "user_cancelled" ||
+          err.code === "cancelled" ||
+          err.code === "canceled") {
+        return;
+      }
+      
       let errorMessage = "Appleサインインに失敗しました。";
       
       if (err.message?.includes("OAuth")) {
         errorMessage += "\n\nOAuth設定に問題がある可能性があります。";
       } else if (err.message?.includes("network")) {
         errorMessage += "\n\nネットワーク接続を確認してください。";
-      } else if (err.message?.includes("cancelled")) {
-        errorMessage = "サインインがキャンセルされました。";
       }
       
       Alert.alert("サインインエラー", errorMessage + "\n\nもう一度お試しください。");
