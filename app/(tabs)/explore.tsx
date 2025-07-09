@@ -43,6 +43,32 @@ export default function SettingsScreen() {
     ]);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      "アカウントを削除",
+      "アカウントを削除すると、すべてのデータが完全に削除され、復元できません。本当に削除しますか？",
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "削除する",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await user?.delete();
+              router.replace("/(tabs)");
+            } catch (error) {
+              console.error("アカウント削除エラー:", error);
+              Alert.alert("エラー", "アカウントの削除に失敗しました。もう一度お試しください。");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -106,6 +132,22 @@ export default function SettingsScreen() {
               <IconSymbol name="chevron.right" size={16} color="#C7C7CC" />
             </Pressable>
           </ThemedView>
+
+          {isSignedIn && (
+            <ThemedView style={styles.deleteAccountCard}>
+              <Pressable style={styles.deleteAccountButton} onPress={handleDeleteAccount}>
+                <ThemedView style={styles.deleteAccountContent}>
+                  <IconSymbol
+                    name="trash"
+                    size={20}
+                    color="#FF3B30"
+                  />
+                  <ThemedText style={styles.deleteAccountText}>アカウントを削除</ThemedText>
+                </ThemedView>
+                <IconSymbol name="chevron.right" size={16} color="#C7C7CC" />
+              </Pressable>
+            </ThemedView>
+          )}
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -265,5 +307,32 @@ const styles = StyleSheet.create({
   timerOptionTextActive: {
     color: "#fff",
     opacity: 1,
+  },
+  deleteAccountCard: {
+    borderRadius: 16,
+    marginTop: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  deleteAccountButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 20,
+    minHeight: 60,
+  },
+  deleteAccountContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  deleteAccountText: {
+    color: "#FF3B30",
+    fontSize: 17,
+    fontWeight: "500",
+    marginLeft: 12,
   },
 });
