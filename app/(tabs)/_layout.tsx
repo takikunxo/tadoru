@@ -37,13 +37,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="poses"
-        options={{
-          title: 'ポーズ集',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="photo.stack" color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="light"
         options={{
           title: 'ライト',
