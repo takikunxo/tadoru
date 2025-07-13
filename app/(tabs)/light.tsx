@@ -259,7 +259,6 @@ export default function LightScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: selectedColor }]}>
-      <StatusBar hidden />
 
       <Animated.View
         style={[
