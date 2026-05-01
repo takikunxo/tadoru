@@ -1,50 +1,102 @@
-# Welcome to your Expo app 👋
+# Tadoru
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform mobile app built with [Expo](https://expo.dev) and [React Native](https://reactnative.dev) for capturing and managing moments.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📸 **Camera Integration**: Capture photos directly from your device camera
+- 🖼️ **Photo Library**: Access and manage photos from your device library
+- 🎙️ **Voice Recording**: Record audio notes alongside your captures
+- 🔐 **Secure Authentication**: User authentication powered by [Clerk](https://clerk.com)
+- 🌓 **Dark Mode Support**: Automatic theme switching based on system settings
+- 📱 **Cross-Platform**: Works on iOS, Android, and web
 
+## Prerequisites
+
+- Node.js 18+ and npm
+- Expo CLI
+- [Clerk account](https://clerk.com) (for authentication)
+
+## Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd tadoru
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
-
-   ```bash
-   npx expo start
+3. **Configure environment variables**
+   
+   Create a `.env.local` file in the root directory:
+   ```env
+   EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    ```
 
-In the output, you'll find options to open the app in a
+4. **Start the development server**
+   ```bash
+   npm start
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   The CLI will present options to run the app on:
+   - [iOS Simulator](https://docs.expo.dev/workflow/ios-simulator/)
+   - [Android Emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+   - [Web Browser](https://docs.expo.dev/workflow/web/) (via `w` key)
+   - [Expo Go](https://expo.dev/go) (via QR code)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project Structure
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+tadoru/
+├── app/                 # App entry points and routing (Expo Router)
+├── components/          # Reusable React components
+├── hooks/              # Custom React hooks
+├── constants/          # App constants and configuration
+├── assets/             # Images, fonts, and other static assets
+├── scripts/            # Build and utility scripts
+└── app.json            # Expo configuration
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Available Scripts
 
-## Learn more
+- `npm start` - Start the Expo development server
+- `npm run android` - Start the app in Android emulator
+- `npm run ios` - Start the app in iOS simulator
+- `npm run web` - Start the app in web browser
+- `npm run lint` - Run ESLint
 
-To learn more about developing your project with Expo, look at the following resources:
+## Technology Stack
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Framework**: [Expo](https://expo.dev) 53+
+- **Language**: TypeScript
+- **Navigation**: [React Navigation](https://reactnavigation.org)
+- **Authentication**: [Clerk](https://clerk.com)
+- **Styling**: React Native StyleSheet
+- **State Management**: React Hooks
+- **Storage**: AsyncStorage, SecureStore
 
-## Join the community
+## Development
 
-Join our community of developers creating universal apps.
+This project uses:
+- **Expo Router** for file-based routing
+- **TypeScript** for type safety
+- **ESLint** for code quality
+- **React Native Reanimated** for smooth animations
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Contributing
+
+Feel free to submit issues and enhancement requests!
+
+## License
+
+MIT
+
+## Resources
+
+- [Expo Documentation](https://docs.expo.dev)
+- [React Native Documentation](https://reactnative.dev)
+- [Clerk Documentation](https://clerk.com/docs)
