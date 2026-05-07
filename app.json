@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "tadoru",
+    "slug": "tadoru",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "tadoru",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.tacitusxo.tadoru",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIStatusBarStyle": "UIStatusBarStyleDefault",
+        "UIViewControllerBasedStatusBarAppearance": false,
+        "NSCameraUsageDescription": "このアプリは写真撮影機能を提供するためにカメラにアクセスします。例えば、アプリ内でカメラボタンをタップすると、デバイスのカメラを使用して写真を撮影できます。",
+        "NSPhotoLibraryUsageDescription": "このアプリは撮影した写真を正常に保存するために写真ライブラリにアクセスします。例えば、アプリで撮影された写真がデバイスの写真ライブラリに適切に保存されているかを確認するために使用されます。",
+        "NSPhotoLibraryAddUsageDescription": "このアプリは撮影した写真をデバイスの写真ライブラリに保存するために使用します。例えば、アプリ内のカメラ機能で撮影した写真は、あなたのデバイスの写真ライブラリに自動的に保存され、後で写真アプリから閲覧・共有できます。"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.tacitusxo.tadoru"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "このアプリは写真撮影機能を提供するためにカメラにアクセスします。例えば、アプリ内でカメラボタンをタップすると、デバイスのカメラを使用して写真を撮影できます。",
+          "microphonePermission": "$(PRODUCT_NAME)がマイクにアクセスするために使用します",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "このアプリは撮影した写真を正常に保存するために写真ライブラリにアクセスします。例えば、アプリで撮影された写真がデバイスの写真ライブラリに適切に保存されているかを確認するために使用されます。",
+          "savePhotosPermission": "このアプリは撮影した写真をデバイスの写真ライブラリに保存するために使用します。例えば、アプリ内のカメラ機能で撮影した写真は、あなたのデバイスの写真ライブラリに自動的に保存され、後で写真アプリから閲覧・共有できます。",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a481b83f-6e51-4499-bb35-08ad407dfda4"
+      }
+    }
+  }
+}

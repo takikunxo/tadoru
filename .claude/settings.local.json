@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:clerk.com)",
+      "WebFetch(domain:docs.expo.dev)",
+      "WebFetch(domain:github.com)",
+      "Bash(mv:*)",
+      "Bash(EXPO_NO_CAPABILITY_SYNC=1 npx eas build --platform ios)"
+    ],
+    "deny": []
+  }
+}

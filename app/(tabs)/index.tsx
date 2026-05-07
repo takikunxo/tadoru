@@ -1,0 +1,1053 @@
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import * as Speech from "expo-speech";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+  Animated,
+  Switch,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
+import { Colors } from '@/constants/Colors';
+
+export default function App() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+  const [permission, requestPermission] = useCameraPermissions();
+  const [mediaLibraryPermission, requestMediaLibraryPermission] =
+    MediaLibrary.usePermissions();
+  const cameraRef = useRef<CameraView>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(0);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(false);
+  const [burstMode, setBurstMode] = useState(false);
+  const [burstCount, setBurstCount] = useState(0);
+  const [isBurstActive, setIsBurstActive] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(0);
+  const [showSettingsPanel, setShowSettingsPanel] = useState(false);
+  const settingsPanelAnimation = useRef(new Animated.Value(-300)).current;
+  const [aspectRatio, setAspectRatio] = useState<'16:9' | '4:3' | '1:1'>('16:9');
+
+  useEffect(() => {
+    const setupPermissions = async () => {
+      try {
+        // カメラのパーミッションを先に確認
+        if (!permission?.granted) {
+          const cameraResult = await requestPermission();
+          if (!cameraResult.granted) {
+            return; // カメラのパーミッションが拒否された場合は終了
+          }
+        }
+
+        // カメラのパーミッションが許可された後にメディアライブラリのパーミッションを確認
+        if (!mediaLibraryPermission?.granted) {
+          const mediaResult = await requestMediaLibraryPermission();
+          if (!mediaResult.granted) {
+            Alert.alert("エラー", "写真の保存に必要な許可が拒否されました");
+            return;
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        Alert.alert("エラー", "カメラの設定に失敗しました");
+      }
+    };
+
+    setupPermissions();
+  }, [
+    mediaLibraryPermission?.granted,
+    permission?.granted,
+    requestMediaLibraryPermission,
+    requestPermission,
+  ]);
+
+  useEffect(() => {
+    if (permission?.granted && mediaLibraryPermission?.granted) {
+      const timer = setTimeout(() => {
+        setZoomLevel(0.1);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [permission?.granted, mediaLibraryPermission?.granted]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadSettings();
+    }, [])
+  );
+
+  const loadSettings = async () => {
+    try {
+      const voice = await AsyncStorage.getItem("voiceEnabled");
+      const annotations = await AsyncStorage.getItem("annotationsEnabled");
+      const timer = await AsyncStorage.getItem("timerDuration");
+      const aspect = await AsyncStorage.getItem("aspectRatio");
+
+      if (voice !== null) {
+        setVoiceEnabled(JSON.parse(voice));
+      }
+      if (annotations !== null) {
+        setAnnotationsEnabled(JSON.parse(annotations));
+      }
+      if (timer !== null) {
+        setTimerDuration(JSON.parse(timer));
+      }
+      if (aspect !== null) {
+        setAspectRatio(JSON.parse(aspect));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveTimerSetting = async (value: number) => {
+    try {
+      await AsyncStorage.setItem("timerDuration", JSON.stringify(value));
+      setTimerDuration(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveAnnotationsSetting = async (value: boolean) => {
+    try {
+      await AsyncStorage.setItem("annotationsEnabled", JSON.stringify(value));
+      setAnnotationsEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveVoiceSetting = async (value: boolean) => {
+    try {
+      await AsyncStorage.setItem("voiceEnabled", JSON.stringify(value));
+      setVoiceEnabled(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const saveAspectRatioSetting = async (value: '16:9' | '4:3' | '1:1') => {
+    try {
+      await AsyncStorage.setItem("aspectRatio", JSON.stringify(value));
+      setAspectRatio(value);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const toggleSettingsPanel = () => {
+    if (showSettingsPanel) {
+      Animated.timing(settingsPanelAnimation, {
+        toValue: -300,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowSettingsPanel(false));
+    } else {
+      setShowSettingsPanel(true);
+      Animated.timing(settingsPanelAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const onGestureEvent = (event: any) => {
+    const { translationX } = event.nativeEvent;
+    // 左方向（負の値）の移動のみ許可
+    if (translationX <= 0) {
+      settingsPanelAnimation.setValue(translationX);
+    }
+  };
+
+  const onHandlerStateChange = (event: any) => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      const { translationX, velocityX } = event.nativeEvent;
+      
+      // 左方向（負の値）のスワイプのみで閉じる
+      if (translationX < -100 || velocityX < -500) {
+        Animated.timing(settingsPanelAnimation, {
+          toValue: -300,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => setShowSettingsPanel(false));
+      } else {
+        // 右方向のスワイプや不十分な左スワイプは元の位置に戻す
+        Animated.timing(settingsPanelAnimation, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  };
+
+  if (!permission) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>カメラの初期化中...</Text>
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>カメラの使用許可が必要です</Text>
+      </View>
+    );
+  }
+
+  if (!mediaLibraryPermission?.granted) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.message, { color: colors.text }]}>写真の保存に必要な許可が必要です</Text>
+      </View>
+    );
+  }
+
+  async function takePicture() {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo) {
+          await MediaLibrary.saveToLibraryAsync(photo.uri);
+        }
+      } catch {
+        Alert.alert("エラー", "写真の撮影または保存に失敗しました");
+      }
+    }
+  }
+
+  async function takeBurstPhotos() {
+    if (!cameraRef.current || isBurstActive) return;
+
+    setIsBurstActive(true);
+    setBurstCount(0);
+
+    const totalShots = 5;
+
+    for (let i = 0; i < totalShots; i++) {
+      try {
+        setBurstCount(i + 1);
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo) {
+          await MediaLibrary.saveToLibraryAsync(photo.uri);
+        }
+
+        if (i < totalShots - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    setIsBurstActive(false);
+    setBurstCount(0);
+  }
+
+  function startCountdown() {
+    if (isTimerActive) return;
+
+    if (timerDuration === 0) {
+      // タイマーなしの場合は即座に撮影
+      burstMode ? takeBurstPhotos() : takePicture();
+      return;
+    }
+
+    setIsTimerActive(true);
+    setCountdown(timerDuration);
+    if (voiceEnabled) {
+      Speech.stop();
+      Speech.speak(timerDuration.toString(), { language: "ja", volume: 1.0 });
+    }
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(timer);
+          setIsTimerActive(false);
+          setCountdown(null);
+          setTimeout(
+            () => (burstMode ? takeBurstPhotos() : takePicture()),
+            200
+          );
+          return null;
+        }
+        const newCount = prev - 1;
+        if (voiceEnabled) {
+          Speech.stop();
+          Speech.speak(newCount.toString(), { language: "ja", volume: 1.0 });
+        }
+        return newCount;
+      });
+    }, 1000);
+  }
+
+  function toggleZoom() {
+    setZoomLevel((prev) => (prev === 0.1 ? 0 : 0.1));
+  }
+
+  return (
+    <GestureHandlerRootView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[
+        styles.cameraContainer, 
+        aspectRatio === '1:1' ? styles.squareContainer : 
+        aspectRatio === '4:3' ? styles.standardContainer : 
+        styles.wideContainer
+      ]}>
+        <CameraView
+          style={styles.camera}
+          facing="back"
+          ref={cameraRef}
+          zoom={zoomLevel}
+        />
+        <View style={styles.gridOverlay}>
+          <View style={[styles.gridLine, { left: "33.33%" }]} />
+          <View style={[styles.gridLine, { left: "66.66%" }]} />
+          <View
+            style={[
+              styles.gridLine,
+              styles.gridLineHorizontal,
+              { top: "33.33%" },
+            ]}
+          />
+          <View
+            style={[
+              styles.gridLine,
+              styles.gridLineHorizontal,
+              { top: "66.66%" },
+            ]}
+          />
+          {annotationsEnabled && (
+            <View style={styles.labelGuide} pointerEvents="none">
+              <View style={styles.headGuide}>
+                <View style={styles.headLine} />
+                <Text style={styles.guideLabel}>頭</Text>
+              </View>
+              <View style={styles.footGuide}>
+                <View style={styles.footLine} />
+                <Text style={styles.guideLabel}>足</Text>
+              </View>
+              <View style={styles.levelGuide}>
+                <Text style={styles.levelLabel}>カメラは被写体と並行に</Text>
+              </View>
+            </View>
+          )}
+        </View>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={toggleSettingsPanel}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <View style={styles.settingsButtonInner}>
+            <Ionicons
+              name="settings-outline"
+              size={24}
+              color="#fff"
+            />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.captureButton,
+            (isTimerActive || isBurstActive) && styles.captureButtonActive,
+          ]}
+          onPress={startCountdown}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <View style={styles.captureButtonInner}>
+            {countdown ? (
+              <Text style={styles.countdownText}>{countdown}</Text>
+            ) : isBurstActive ? (
+              <Text style={styles.burstCountText}>{burstCount}/5</Text>
+            ) : (
+              <Ionicons
+                name={burstMode ? "albums" : "camera"}
+                size={32}
+                color="#000"
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.zoomButton}
+          onPress={toggleZoom}
+          disabled={isTimerActive || isBurstActive}
+        >
+          <View style={styles.zoomButtonInner}>
+            <Ionicons
+              name={zoomLevel === 0 ? "contract-outline" : "expand-outline"}
+              size={24}
+              color="#fff"
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+      
+      {showSettingsPanel && (
+        <>
+          <TouchableOpacity
+            style={styles.settingsOverlay}
+            activeOpacity={1}
+            onPress={toggleSettingsPanel}
+          />
+          <PanGestureHandler
+            onGestureEvent={onGestureEvent}
+            onHandlerStateChange={onHandlerStateChange}
+          >
+            <Animated.View
+              style={[
+                styles.settingsPanel,
+                { 
+                  transform: [{ translateX: settingsPanelAnimation }],
+                  backgroundColor: colorScheme === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)'
+                },
+              ]}
+            >
+            <View style={[styles.settingsPanelHeader, { borderBottomColor: colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)' }]}>
+              <Text style={[styles.settingsPanelTitle, { color: colors.text }]}>カメラ設定</Text>
+              <TouchableOpacity
+                style={styles.closePanelButton}
+                onPress={toggleSettingsPanel}
+              >
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView 
+              style={styles.settingsPanelContent}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.settingsPanelScrollContent}
+            >
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="timer-outline" size={20} color="#007AFF" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>タイマー時間</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>撮影までのカウントダウン時間</Text>
+                  </View>
+                </View>
+                <View style={styles.timerOptions}>
+                  {[0, 1, 2, 3, 5].map((seconds) => (
+                    <Pressable
+                      key={seconds}
+                      style={[
+                        styles.timerOption,
+                        { 
+                          backgroundColor: timerDuration === seconds ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'),
+                          borderColor: timerDuration === seconds ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)')
+                        },
+                      ]}
+                      onPress={() => saveTimerSetting(seconds)}
+                    >
+                      <Text
+                        style={[
+                          styles.timerOptionText,
+                          { 
+                            color: timerDuration === seconds ? '#fff' : colors.text
+                          }
+                        ]}
+                      >
+                        {seconds === 0 ? "なし" : `${seconds}秒`}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="volume-high-outline" size={20} color="#34C759" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>音声カウントダウン</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>タイマー時の数字読み上げ</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={voiceEnabled}
+                  onValueChange={saveVoiceSetting}
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={voiceEnabled ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
+                />
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="grid-outline" size={20} color="#FF9500" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>撮影ガイド</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>全身撮影時の案内メッセージ</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={annotationsEnabled}
+                  onValueChange={saveAnnotationsSetting}
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={annotationsEnabled ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
+                />
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="camera-outline" size={20} color="#8B5CF6" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>連写モード</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>5枚連続で撮影する</Text>
+                  </View>
+                </View>
+                <Switch
+                  value={burstMode}
+                  onValueChange={setBurstMode}
+                  trackColor={{ false: colorScheme === 'light' ? '#E5E5E5' : '#374151', true: "#34C759" }}
+                  thumbColor={burstMode ? "#ffffff" : (colorScheme === 'light' ? '#9ca3af' : '#9ca3af')}
+                  ios_backgroundColor={colorScheme === 'light' ? '#E5E5E5' : '#374151'}
+                />
+              </View>
+              
+              <View style={styles.settingItem}>
+                <View style={styles.settingInfo}>
+                  <Ionicons name="resize-outline" size={20} color="#007AFF" />
+                  <View style={styles.settingTextContainer}>
+                    <Text style={[styles.settingTitle, { color: colors.text }]}>アスペクト比</Text>
+                    <Text style={[styles.settingSubtitle, { color: colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.7)' }]}>写真の縦横比を選択</Text>
+                  </View>
+                </View>
+                <View style={styles.aspectRatioOptions}>
+                  {([
+                    { ratio: '16:9', label: 'ストーリー' },
+                    { ratio: '4:3', label: '標準' },
+                    { ratio: '1:1', label: 'Instagram' }
+                  ] as const).map(({ ratio, label }) => (
+                    <Pressable
+                      key={ratio}
+                      style={[
+                        styles.aspectRatioOption,
+                        { 
+                          backgroundColor: aspectRatio === ratio ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'),
+                          borderColor: aspectRatio === ratio ? '#007AFF' : (colorScheme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)')
+                        },
+                      ]}
+                      onPress={() => saveAspectRatioSetting(ratio)}
+                    >
+                      <Text
+                        style={[
+                          styles.aspectRatioOptionText,
+                          { 
+                            color: aspectRatio === ratio ? '#fff' : colors.text
+                          }
+                        ]}
+                      >
+                        {ratio}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.aspectRatioOptionLabel,
+                          { 
+                            color: aspectRatio === ratio ? 'rgba(255, 255, 255, 0.9)' : (colorScheme === 'light' ? '#666' : 'rgba(255, 255, 255, 0.6)')
+                          }
+                        ]}
+                      >
+                        {label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </ScrollView>
+            </Animated.View>
+          </PanGestureHandler>
+        </>
+      )}
+    </GestureHandlerRootView>
+  );
+}
+
+const { width } = Dimensions.get("window");
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  message: {
+    textAlign: "center",
+    paddingBottom: 10,
+    fontSize: 16,
+  },
+  cameraContainer: {
+    alignSelf: "center",
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -width / 2 }],
+  },
+  wideContainer: {
+    width: width,
+    height: (width * 16) / 9,
+    marginTop: -((width * 16) / 9) / 2,
+  },
+  standardContainer: {
+    width: width,
+    height: (width * 4) / 3,
+    marginTop: -((width * 4) / 3) / 2,
+  },
+  squareContainer: {
+    width: width,
+    height: width,
+    marginTop: -width / 2,
+  },
+  camera: {
+    flex: 1,
+  },
+  gridOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: "none",
+  },
+  gridLine: {
+    position: "absolute",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    width: 1,
+    height: "100%",
+  },
+  gridLineHorizontal: {
+    width: "100%",
+    height: 1,
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 100,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    backgroundColor: "transparent",
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  captureButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "white",
+    borderRadius: 36.5,
+    width: 73,
+    height: 73,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  captureButtonInner: {
+    backgroundColor: "white",
+    borderRadius: 32.5,
+    width: 65,
+    height: 65,
+    borderWidth: 2,
+    borderColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  captureButtonActive: {
+    backgroundColor: "#ff6b6b",
+  },
+  countdownText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
+  },
+  instructionContainer: {
+    position: "absolute",
+    top: "30%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  instructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    position: "relative",
+    backdropFilter: "blur(10px)",
+  },
+  instructionText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  bubbleTail: {
+    position: "absolute",
+    bottom: -7,
+    alignSelf: "center",
+    width: 0,
+    height: 0,
+    borderLeftWidth: 7,
+    borderRightWidth: 7,
+    borderTopWidth: 7,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(0, 0, 0, 0.85)",
+  },
+  arrow: {
+    fontSize: 28,
+    marginTop: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  cameraInstructionContainer: {
+    position: "absolute",
+    top: "10%",
+    left: "10%",
+    alignItems: "center",
+  },
+  cameraInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    backdropFilter: "blur(10px)",
+  },
+  cameraInstructionText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "600",
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  footInstructionContainer: {
+    position: "absolute",
+    bottom: 120,
+    left: "10%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  footInstructionBubble: {
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 6,
+    position: "relative",
+    backdropFilter: "blur(10px)",
+  },
+  footBubbleTail: {
+    position: "absolute",
+    bottom: -6,
+    alignSelf: "center",
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderTopColor: "rgba(0, 0, 0, 0.85)",
+  },
+  settingsButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  settingsButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  zoomButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  zoomButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  settingsPanel: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 300,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
+    zIndex: 2,
+  },
+  settingsPanelHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    marginTop: 50,
+  },
+  settingsPanelTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  closePanelButton: {
+    padding: 5,
+  },
+  settingsPanelContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  settingsPanelScrollContent: {
+    paddingTop: 20,
+    paddingBottom: 60,
+  },
+  settingItem: {
+    marginBottom: 24,
+  },
+  settingInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  settingTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  settingSubtitle: {
+    fontSize: 13,
+  },
+  timerOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  timerOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    minWidth: 50,
+    alignItems: "center",
+  },
+  timerOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  spacer: {
+    width: 50,
+  },
+  burstCountText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  burstToggleButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  burstToggleButtonActive: {
+    backgroundColor: "#fff",
+  },
+  burstToggleButtonInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  burstToggleText: {
+    fontSize: 8,
+    fontWeight: "600",
+    color: "#fff",
+    marginTop: 2,
+  },
+  burstToggleTextActive: {
+    color: "#000",
+  },
+  aspectRatioOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  aspectRatioOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    minWidth: 75,
+    alignItems: "center",
+    flex: 1,
+    maxWidth: 90,
+  },
+  aspectRatioOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  aspectRatioOptionLabel: {
+    fontSize: 10,
+    fontWeight: "400",
+    textAlign: "center",
+  },
+  settingsOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1,
+  },
+  labelGuide: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  headGuide: {
+    position: "absolute",
+    top: "35%",
+    left: "15%",
+    right: "15%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  footGuide: {
+    position: "absolute",
+    bottom: "2%",
+    left: "15%",
+    right: "15%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 1,
+    marginRight: 8,
+  },
+  footLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 1,
+    marginRight: 8,
+  },
+  guideLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 12,
+    fontWeight: "600",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  levelGuide: {
+    position: "absolute",
+    top: "10%",
+    left: "15%",
+    right: "15%",
+    alignItems: "center",
+  },
+  levelLabel: {
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 11,
+    fontWeight: "500",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+});
